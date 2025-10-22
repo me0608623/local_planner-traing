@@ -4,6 +4,8 @@
 
 ## ⚠️ 重要提醒
 
+### 1. 使用正確的 Python 環境
+
 **所有命令必須使用 `./isaaclab.sh -p` 而不是系統 `python`！**
 
 Isaac Lab 需要特定的 Python 環境和依賴，直接使用系統 Python 會導致模組導入錯誤。
@@ -15,6 +17,22 @@ Isaac Lab 需要特定的 Python 環境和依賴，直接使用系統 Python 會
 # ❌ 錯誤
 python scripts/reinforcement_learning/rsl_rl/train.py ...
 ```
+
+### 2. Isaac Lab v2.2 API 變更
+
+**Isaac Lab v2.2 已將所有模組從 `omni.isaac.lab` 重命名為 `isaaclab`！**
+
+```python
+# ✅ 正確 - Isaac Lab v2.2+
+from isaaclab.utils import configclass
+from isaaclab.sim import SimulationCfg
+
+# ❌ 錯誤 - 舊版本（不再支援）
+from omni.isaac.lab.utils import configclass
+from omni.isaac.lab.sim import SimulationCfg
+```
+
+**詳細說明**: 請參閱 [Isaac Lab v2.2 API 變更指南](md/ISAAC_LAB_V2_2_API_CHANGES.md)
 
 ---
 
@@ -294,6 +312,7 @@ RSL-RL PPO 算法配置位於：
 - [項目架構總覽](md/PROJECT_ARCHITECTURE_SUMMARY.md)
 
 ### 問題解決
+- [🔧 Isaac Lab v2.2 API 變更](md/ISAAC_LAB_V2_2_API_CHANGES.md) ⭐ **必讀 - 模組重命名**
 - [🎮 GUI vs Headless 深度分析](md/GUI_VS_HEADLESS_PHYSX_ANALYSIS.md) ⭐ **重要發現**
 - [🔍 NVIDIA官方問題分析](md/NVIDIA_OFFICIAL_PHYSX_ISSUE_ANALYSIS.md) ⭐ **官方確認**
 - [PhysX 修復指南](md/PHYSX_TENSOR_DEVICE_FIX.md)
