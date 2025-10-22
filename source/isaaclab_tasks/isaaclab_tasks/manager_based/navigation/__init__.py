@@ -1,8 +1,9 @@
-# Copyright (c) 2022-2025, The Isaac Lab Project Developers (https://github.com/isaac-sim/IsaacLab/blob/main/CONTRIBUTORS.md).
+# Copyright (c) 2022-2025, The Isaac Lab Project Developers.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 
-"""Navigation environments."""
+"""Navigation tasks for Isaac Lab."""
 
-from .config import anymal_c
+# Import all navigation tasks
+from . import local_planner

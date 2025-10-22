@@ -15,4 +15,18 @@ from .differential_ik import DifferentialIKController
 from .differential_ik_cfg import DifferentialIKControllerCfg
 from .operational_space import OperationalSpaceController
 from .operational_space_cfg import OperationalSpaceControllerCfg
-from .pink_ik import NullSpacePostureTask, PinkIKController, PinkIKControllerCfg
+
+# Pink IK Controller (需要 Pinocchio，如果未安裝則跳過)
+# 對於不需要複雜運動學的任務（如輪式機器人導航），可以不安裝 Pinocchio
+try:
+    from .pink_ik import NullSpacePostureTask, PinkIKController, PinkIKControllerCfg
+except ImportError as e:
+    # Pinocchio 未安裝，跳過 Pink IK Controller
+    # 這不影響其他控制器（如差速驅動、DifferentialIK 等）
+    import warnings
+    warnings.warn(
+        f"Pink IK Controller 無法導入（需要 Pinocchio）: {e}\n"
+        "如果您使用輪式機器人或不需要複雜運動學，可以忽略此警告。\n"
+        "如果需要使用機械臂 IK 控制，請安裝 Pinocchio。",
+        ImportWarning
+    )

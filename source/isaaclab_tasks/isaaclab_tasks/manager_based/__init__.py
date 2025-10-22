@@ -8,3 +8,6 @@ Config-based workflow environments.
 """
 
 import gymnasium as gym
+
+# Import all manager-based task modules
+from . import navigation
