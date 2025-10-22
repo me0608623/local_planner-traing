@@ -28,6 +28,11 @@ from .local_planner_env_cfg_isaac_sim_5_fixed import (
     LocalPlannerEnvCfg_ISAAC_SIM_5_FIXED,
     LocalPlannerEnvCfg_ISAAC_SIM_5_SIMPLE
 )
+from .local_planner_env_cfg_gui_fixed import (
+    LocalPlannerEnvCfg_GUI_FIXED,
+    LocalPlannerEnvCfg_GUI_SIMPLE,
+    LocalPlannerEnvCfg_DIAGNOSTIC
+)
 
 ##
 # Register Gym environments
@@ -155,6 +160,41 @@ gym.register(
     disable_env_checker=True,
     kwargs={
         "env_cfg_entry_point": f"{__name__}.local_planner_env_cfg_isaac_sim_5_fixed:LocalPlannerEnvCfg_ISAAC_SIM_5_SIMPLE",
+        "rsl_rl_cfg_entry_point": f"{agents.__name__}.rsl_rl_ppo_cfg:LocalPlannerPPORunnerCfg",
+        "sb3_cfg_entry_point": f"{agents.__name__}.sb3_ppo_cfg:LocalPlannerSB3PPORunnerCfg",
+    },
+)
+
+# GUI 模式專用環境 - 基於GUI vs Headless重要發現
+gym.register(
+    id="Isaac-Navigation-LocalPlanner-Carter-GUI-Fixed-v0",
+    entry_point="isaaclab.envs:ManagerBasedRLEnv",
+    disable_env_checker=True,
+    kwargs={
+        "env_cfg_entry_point": f"{__name__}.local_planner_env_cfg_gui_fixed:LocalPlannerEnvCfg_GUI_FIXED",
+        "rsl_rl_cfg_entry_point": f"{agents.__name__}.rsl_rl_ppo_cfg:LocalPlannerPPORunnerCfg",
+        "sb3_cfg_entry_point": f"{agents.__name__}.sb3_ppo_cfg:LocalPlannerSB3PPORunnerCfg",
+    },
+)
+
+gym.register(
+    id="Isaac-Navigation-LocalPlanner-Carter-GUI-Simple-v0",
+    entry_point="isaaclab.envs:ManagerBasedRLEnv",
+    disable_env_checker=True,
+    kwargs={
+        "env_cfg_entry_point": f"{__name__}.local_planner_env_cfg_gui_fixed:LocalPlannerEnvCfg_GUI_SIMPLE",
+        "rsl_rl_cfg_entry_point": f"{agents.__name__}.rsl_rl_ppo_cfg:LocalPlannerPPORunnerCfg",
+        "sb3_cfg_entry_point": f"{agents.__name__}.sb3_ppo_cfg:LocalPlannerSB3PPORunnerCfg",
+    },
+)
+
+# 診斷專用環境
+gym.register(
+    id="Isaac-Navigation-LocalPlanner-Carter-Diagnostic-v0",
+    entry_point="isaaclab.envs:ManagerBasedRLEnv",
+    disable_env_checker=True,
+    kwargs={
+        "env_cfg_entry_point": f"{__name__}.local_planner_env_cfg_gui_fixed:LocalPlannerEnvCfg_DIAGNOSTIC",
         "rsl_rl_cfg_entry_point": f"{agents.__name__}.rsl_rl_ppo_cfg:LocalPlannerPPORunnerCfg",
         "sb3_cfg_entry_point": f"{agents.__name__}.sb3_ppo_cfg:LocalPlannerSB3PPORunnerCfg",
     },

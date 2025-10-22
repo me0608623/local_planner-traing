@@ -17,7 +17,8 @@ import argparse
 def diagnose_simulation_setup():
     """診斷模擬設置的設備一致性"""
     print("=== 🔍 PhysX Tensor Device 診斷工具 ===")
-    print("基於 NVIDIA 開發者論壇和 GitHub 已知問題分析\n")
+    print("基於 NVIDIA 開發者論壇和 GitHub 已知問題分析")
+    print("🚨 重要發現: 錯誤只在 GUI 模式出現，Headless 模式正常\n")
     
     print("1️⃣ 系統環境檢查：")
     print(f"   Python: {sys.version}")
@@ -73,6 +74,45 @@ def diagnose_simulation_setup():
     print("   - 使用我們的 LocalPlannerEnvCfg_GPU_FIXED 配置")
     print("   - 如果問題持續，嘗試 CPU 模式作為workaround")
 
+def diagnose_gui_vs_headless_mode():
+    """診斷 GUI vs Headless 模式差異"""
+    print(f"\n🎮 GUI vs Headless 模式分析：")
+    print("📋 關鍵發現: PhysX錯誤只在GUI模式出現！")
+    
+    try:
+        # 嘗試檢測當前運行模式
+        import os
+        display = os.environ.get('DISPLAY')
+        if display:
+            print(f"   🖥️ 檢測到 DISPLAY: {display} (可能為GUI模式)")
+        else:
+            print("   📱 無 DISPLAY 環境變數 (可能為Headless模式)")
+            
+        # 檢查Isaac Sim運行模式相關環境變數
+        isaac_headless = os.environ.get('ISAAC_SIM_HEADLESS')
+        if isaac_headless:
+            print(f"   🔧 ISAAC_SIM_HEADLESS: {isaac_headless}")
+            
+    except Exception as e:
+        print(f"   ⚠️ 模式檢測失敗: {e}")
+    
+    print(f"\n📊 模式差異分析：")
+    print("   GUI 模式:")
+    print("     ❌ 觸發PhysX tensor device錯誤")
+    print("     🔧 原因: 自動啟用GPU物理管線")
+    print("     💡 解決: 使用GPU-Fixed配置")
+    
+    print("   Headless 模式:")
+    print("     ✅ 完全正常運行")
+    print("     🔧 原因: 統一CPU處理或正確的GPU管線")
+    print("     💡 建議: 生產環境首選")
+    
+    print(f"\n🎯 建議策略：")
+    print("   1. 開發/除錯: 使用Headless模式 (--headless)")
+    print("   2. GUI需求: 使用 Isaac-Navigation-LocalPlanner-Carter-GUI-Fixed-v0")
+    print("   3. 生產訓練: 優先選擇Headless模式")
+    print("   4. 視覺化: 訓練後使用play腳本觀看結果")
+
 def test_environment_registration():
     """測試環境註冊和設備配置"""
     print(f"\n5️⃣ 環境註冊測試：")
@@ -104,9 +144,13 @@ def test_environment_registration():
 def main():
     parser = argparse.ArgumentParser(description="PhysX Tensor Device 診斷工具")
     parser.add_argument("--full", action="store_true", help="運行完整診斷")
+    parser.add_argument("--gui-analysis", action="store_true", help="專門分析GUI vs Headless差異")
     args = parser.parse_args()
     
     diagnose_simulation_setup()
+    
+    # 總是運行GUI vs Headless分析，因為這是關鍵發現
+    diagnose_gui_vs_headless_mode()
     
     if args.full:
         test_environment_registration()
@@ -115,11 +159,19 @@ def main():
     print("   - NVIDIA Developer Forums: PhysX tensors device issues")
     print("   - Isaac Lab GitHub Issues: tensor device mismatch")
     print("   - 我們的修復文檔: md/PHYSX_TENSOR_DEVICE_FIX.md")
+    print("   - GUI vs Headless 分析: md/GUI_VS_HEADLESS_PHYSX_ANALYSIS.md")
     
-    print(f"\n🎯 推薦使用：")
+    print(f"\n🎯 推薦使用 (基於GUI vs Headless發現)：")
+    print("   # Headless模式 (推薦，穩定)")
+    print("   python scripts/reinforcement_learning/rsl_rl/train.py \\")
+    print("       --task Isaac-Navigation-LocalPlanner-Carter-v0 \\")
+    print("       --num_envs 4 --headless")
+    print("")
+    print("   # GUI模式 (需要修復配置)")  
     print("   python scripts/reinforcement_learning/rsl_rl/train.py \\")
     print("       --task Isaac-Navigation-LocalPlanner-Carter-GPU-Fixed-v0 \\")
-    print("       --num_envs 4 --headless")
+    print("       --num_envs 2")
+    print("       # 注意: 不使用 --headless")
 
 if __name__ == "__main__":
     main()

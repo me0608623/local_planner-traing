@@ -66,12 +66,13 @@ python scripts/reinforcement_learning/rsl_rl/train.py \
 
 ### 可用環境
 
-| 環境名稱 | 描述 | 設備 | 複雜度 |
-|---------|------|------|-------|
-| `Isaac-Navigation-LocalPlanner-Carter-v0` | 標準 GPU 配置 | CUDA | 中等 |
-| `Isaac-Navigation-LocalPlanner-Carter-CPU-v0` | CPU 優化版本 | CPU | 中等 |
-| `Isaac-Navigation-LocalPlanner-Carter-GPU-Fixed-v0` | GPU 優化版本 | CUDA | 高 |
-| `Isaac-Navigation-LocalPlanner-Carter-IsaacSim5-v0` | Isaac Sim 5.0 專用 | CUDA | 中等 |
+| 環境名稱 | 描述 | 設備 | 適用模式 | 複雜度 |
+|---------|------|------|----------|-------|
+| `Isaac-Navigation-LocalPlanner-Carter-v0` | 標準配置 | CUDA | Headless | 中等 |
+| `Isaac-Navigation-LocalPlanner-Carter-CPU-v0` | CPU 優化版本 | CPU | 兩者皆可 | 中等 |
+| `Isaac-Navigation-LocalPlanner-Carter-GPU-Fixed-v0` | GPU 優化版本 | CUDA | Headless | 高 |
+| `Isaac-Navigation-LocalPlanner-Carter-GUI-Fixed-v0` | **GUI 模式專用** ⭐ | CUDA | **GUI Only** | 中等 |
+| `Isaac-Navigation-LocalPlanner-Carter-IsaacSim5-v0` | Isaac Sim 5.0 專用 | CUDA | Headless | 中等 |
 
 ### 環境參數
 
@@ -82,11 +83,42 @@ python scripts/reinforcement_learning/rsl_rl/train.py \
 # 訓練步數
 --max_iterations 1000
 
-# 無頭模式（服務器訓練）
+# 無頭模式（服務器訓練，推薦）
 --headless
 
-# 啟用視覺化（本機訓練）
-# 移除 --headless 參數
+# 啟用視覺化（本機訓練，需要特殊配置）
+# 移除 --headless 參數，使用 GUI-Fixed 環境
+```
+
+## 🎮 GUI vs Headless 模式重要說明
+
+### 🚨 **關鍵發現**
+
+**PhysX tensor device 錯誤只在 GUI 模式出現，Headless 模式完全正常！**
+
+### 模式對比
+
+| 模式 | 狀態 | 原因 | 建議 |
+|------|------|------|------|
+| **Headless** | ✅ 完全正常 | 統一CPU處理或正確GPU管線 | **生產首選** |
+| **GUI** | ❌ 出現錯誤 | 自動啟用GPU物理管線衝突 | 使用專用修復配置 |
+
+### 最佳實踐
+
+```bash
+# 1. 開發和訓練：使用 Headless 模式（推薦）
+python scripts/reinforcement_learning/rsl_rl/train.py \
+    --task Isaac-Navigation-LocalPlanner-Carter-v0 \
+    --num_envs 4 --headless
+
+# 2. GUI 視覺化需求：使用專用配置
+python scripts/reinforcement_learning/rsl_rl/train.py \
+    --task Isaac-Navigation-LocalPlanner-Carter-GUI-Fixed-v0 \
+    --num_envs 2
+    # 注意：不使用 --headless
+
+# 3. 診斷問題：
+python scripts/diagnose_tensor_device.py
 ```
 
 ## 📊 環境詳細說明
@@ -174,6 +206,8 @@ RSL-RL PPO 算法配置位於：
 ## 📖 技術文檔
 
 - [項目架構總覽](md/PROJECT_ARCHITECTURE_SUMMARY.md)
+- [🎮 GUI vs Headless 深度分析](md/GUI_VS_HEADLESS_PHYSX_ANALYSIS.md) ⭐ **重要發現**
+- [🔍 NVIDIA官方問題分析](md/NVIDIA_OFFICIAL_PHYSX_ISSUE_ANALYSIS.md) ⭐ **官方確認**
 - [強化學習策略](md/RL_STRATEGY_ARCHITECTURE.md)
 - [最終解決方案](md/FINAL_ISAAC_SIM_5_SOLUTION.md)
 - [用戶指南](md/FINAL_USER_GUIDE.md)
@@ -199,25 +233,42 @@ RSL-RL PPO 算法配置位於：
 
 ## 🎯 性能建議
 
-### GPU 訓練 (推薦)
+### Headless 模式訓練 (強烈推薦) ⭐
 
 ```bash
-# 高性能設置
+# 高性能 Headless 訓練 - 最穩定的選擇
 python scripts/reinforcement_learning/rsl_rl/train.py \
-    --task Isaac-Navigation-LocalPlanner-Carter-GPU-Fixed-v0 \
+    --task Isaac-Navigation-LocalPlanner-Carter-v0 \
     --num_envs 8 \
     --headless
 ```
 
-### CPU 訓練
+### GUI 模式訓練 (特殊需求)
 
 ```bash
-# 適用於沒有 GPU 的情況
+# GUI 模式專用配置 - 用於視覺化需求
+python scripts/reinforcement_learning/rsl_rl/train.py \
+    --task Isaac-Navigation-LocalPlanner-Carter-GUI-Fixed-v0 \
+    --num_envs 2
+    # 注意：環境數量較少以避免GUI渲染開銷
+```
+
+### CPU 訓練 (兼容性最佳)
+
+```bash
+# 適用於沒有 GPU 或最大兼容性需求
 python scripts/reinforcement_learning/rsl_rl/train.py \
     --task Isaac-Navigation-LocalPlanner-Carter-CPU-v0 \
     --num_envs 2 \
     --headless
 ```
+
+### 工作流程建議
+
+1. **開發階段**: 使用 Headless 模式快速迭代
+2. **除錯階段**: 偶爾使用 GUI 模式觀察行為  
+3. **生產訓練**: 始終使用 Headless 模式
+4. **結果展示**: 訓練完成後使用 play 腳本
 
 ## 🤝 貢獻
 
