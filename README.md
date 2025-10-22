@@ -16,6 +16,12 @@ Isaac Lab 需要特定的 Python 環境和依賴，直接使用系統 Python 會
 python scripts/reinforcement_learning/rsl_rl/train.py ...
 ```
 
+---
+
+**🚀 [立即查看快速開始指南](QUICK_START_GUIDE.md)** - 5 分鐘快速上手！
+
+---
+
 ## 🚀 專案簡介
 
 本專案實現了 Nova Carter 移動機器人的本地路徑規劃強化學習環境，支援障礙物迴避、目標導航和 LiDAR 感知。環境完全兼容 Isaac Sim 5.0，並修復了所有已知的 PhysX tensor device 匹配問題。
