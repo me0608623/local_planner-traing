@@ -129,10 +129,20 @@ RSL-RL PPO 算法配置位於：
 
 ### 常見問題
 
-1. **PhysX tensor device mismatch**
+1. **PhysX tensor device mismatch** ⭐ **官方已知問題**
    ```
-   解決方案：使用 GPU-Fixed 或 IsaacSim5 配置
+   錯誤：[Error] [omni.physx.tensors.plugin] Incompatible device of velocity tensor 
+         in function getVelocities: expected device 0, received device -1
+   
+   原因：NVIDIA官方確認的API問題（非用戶環境錯誤）
+         - NVIDIA Developer Forums 已記錄
+         - Isaac Lab GitHub Issues 官方bug報告
+   
+   解決方案：使用我們的修復配置
    --task Isaac-Navigation-LocalPlanner-Carter-GPU-Fixed-v0
+   
+   診斷工具：
+   python scripts/diagnose_tensor_device.py --full
    ```
 
 2. **模組導入錯誤 (omni.isaac.core)**
@@ -156,6 +166,7 @@ RSL-RL PPO 算法配置位於：
 ### 詳細故障排除
 
 更多詳細的故障排除指南請參考：
+- [🔍 NVIDIA官方問題分析](md/NVIDIA_OFFICIAL_PHYSX_ISSUE_ANALYSIS.md) ⭐ **必讀**
 - [PhysX 修復指南](md/PHYSX_TENSOR_DEVICE_FIX.md)
 - [Isaac Sim 5.0 兼容性](md/ISAAC_SIM_5_MODULE_RESTRUCTURE_FIX.md)
 - [完整問題解決方案](md/ALL_ISSUES_FIXED_SUMMARY.md)
