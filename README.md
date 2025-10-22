@@ -66,13 +66,16 @@ python scripts/reinforcement_learning/rsl_rl/train.py \
 
 ### 可用環境
 
-| 環境名稱 | 描述 | 設備 | 適用模式 | 複雜度 |
-|---------|------|------|----------|-------|
-| `Isaac-Navigation-LocalPlanner-Carter-v0` | 標準配置 | CUDA | Headless | 中等 |
-| `Isaac-Navigation-LocalPlanner-Carter-CPU-v0` | CPU 優化版本 | CPU | 兩者皆可 | 中等 |
-| `Isaac-Navigation-LocalPlanner-Carter-GPU-Fixed-v0` | GPU 優化版本 | CUDA | Headless | 高 |
-| `Isaac-Navigation-LocalPlanner-Carter-GUI-Fixed-v0` | **GUI 模式專用** ⭐ | CUDA | **GUI Only** | 中等 |
-| `Isaac-Navigation-LocalPlanner-Carter-IsaacSim5-v0` | Isaac Sim 5.0 專用 | CUDA | Headless | 中等 |
+| 環境名稱 | 描述 | 設備 | 適用模式 | 難度 | 推薦用途 |
+|---------|------|------|----------|------|---------|
+| `Isaac-Navigation-LocalPlanner-Carter-Easy-v0` | **簡化訓練版** ⭐ | CUDA | Headless | 簡單 | **首次訓練** |
+| `Isaac-Navigation-LocalPlanner-Carter-Curriculum-Stage1-v0` | Curriculum Stage 1 | CUDA | Headless | 最簡單 | 階段式訓練 |
+| `Isaac-Navigation-LocalPlanner-Carter-Curriculum-Stage2-v0` | Curriculum Stage 2 | CUDA | Headless | 中等 | 階段式訓練 |
+| `Isaac-Navigation-LocalPlanner-Carter-v0` | 標準配置 | CUDA | Headless | 中等 | 正常訓練 |
+| `Isaac-Navigation-LocalPlanner-Carter-CPU-v0` | CPU 優化版本 | CPU | 兩者皆可 | 中等 | 無GPU環境 |
+| `Isaac-Navigation-LocalPlanner-Carter-GPU-Fixed-v0` | GPU 優化版本 | CUDA | Headless | 高 | 高性能訓練 |
+| `Isaac-Navigation-LocalPlanner-Carter-GUI-Fixed-v0` | GUI 模式專用 | CUDA | GUI Only | 中等 | 視覺化需求 |
+| `Isaac-Navigation-LocalPlanner-Carter-IsaacSim5-v0` | Isaac Sim 5.0 | CUDA | Headless | 中等 | 新版本 |
 
 ### 環境參數
 
@@ -120,6 +123,66 @@ python scripts/reinforcement_learning/rsl_rl/train.py \
 # 3. 診斷問題：
 python scripts/diagnose_tensor_device.py
 ```
+
+## 📊 訓練診斷與改進
+
+### 🔍 自動診斷訓練結果
+
+如果您的訓練結果不理想（如：獎勵持續為負、從未到達目標、100%超時），使用我們的診斷工具：
+
+```bash
+# 自動分析訓練日誌並提供改進建議
+python scripts/analyze_training_log.py
+
+# 或分析特定日誌文件
+python scripts/analyze_training_log.py --file logs/rsl_rl/your_training.log
+
+# 或從剪貼板分析（粘貼後按 Ctrl+D）
+python scripts/analyze_training_log.py --stdin
+```
+
+### 🎓 使用簡化環境開始訓練
+
+如果您是首次訓練 Nova Carter 導航任務，**強烈建議從簡化環境開始**：
+
+```bash
+# 首次訓練 - 使用簡化環境
+python scripts/reinforcement_learning/rsl_rl/train.py \
+    --task Isaac-Navigation-LocalPlanner-Carter-Easy-v0 \
+    --num_envs 4 --headless
+
+# Curriculum Learning - 階段式訓練
+# Stage 1: 最簡單（1.5-3m 目標，50秒）
+python scripts/reinforcement_learning/rsl_rl/train.py \
+    --task Isaac-Navigation-LocalPlanner-Carter-Curriculum-Stage1-v0 \
+    --num_envs 4 --headless
+
+# Stage 2: 中等難度（3-6m 目標，5 障礙物）
+python scripts/reinforcement_learning/rsl_rl/train.py \
+    --task Isaac-Navigation-LocalPlanner-Carter-Curriculum-Stage2-v0 \
+    --num_envs 4 --headless
+
+# Stage 3: 完整難度（使用標準環境）
+python scripts/reinforcement_learning/rsl_rl/train.py \
+    --task Isaac-Navigation-LocalPlanner-Carter-v0 \
+    --num_envs 8 --headless
+```
+
+### 📈 訓練成功指標
+
+**良好的訓練應該顯示**：
+- ✅ 平均獎勵 > -500（理想 > 0）
+- ✅ 成功到達目標率 > 10%
+- ✅ 超時率 < 80%
+- ✅ 平均距離誤差 < 2.0m
+
+**如果您看到**：
+- ❌ 平均獎勵 < -1000
+- ❌ 成功率 = 0%
+- ❌ 超時率 = 100%
+- ❌ 距離誤差 > 4m
+
+→ 請使用 `analyze_training_log.py` 診斷並考慮切換到簡化環境。
 
 ## 📊 環境詳細說明
 
@@ -205,10 +268,19 @@ RSL-RL PPO 算法配置位於：
 
 ## 📖 技術文檔
 
+### 訓練相關
+- [📊 訓練診斷指南](md/TRAINING_DIAGNOSIS_GUIDE.md) ⭐ **訓練必讀**
+- [強化學習策略](md/RL_STRATEGY_ARCHITECTURE.md)
 - [項目架構總覽](md/PROJECT_ARCHITECTURE_SUMMARY.md)
+
+### 問題解決
 - [🎮 GUI vs Headless 深度分析](md/GUI_VS_HEADLESS_PHYSX_ANALYSIS.md) ⭐ **重要發現**
 - [🔍 NVIDIA官方問題分析](md/NVIDIA_OFFICIAL_PHYSX_ISSUE_ANALYSIS.md) ⭐ **官方確認**
-- [強化學習策略](md/RL_STRATEGY_ARCHITECTURE.md)
+- [PhysX 修復指南](md/PHYSX_TENSOR_DEVICE_FIX.md)
+- [Isaac Sim 5.0 兼容性](md/ISAAC_SIM_5_MODULE_RESTRUCTURE_FIX.md)
+- [完整問題解決方案](md/ALL_ISSUES_FIXED_SUMMARY.md)
+
+### 使用指南
 - [最終解決方案](md/FINAL_ISAAC_SIM_5_SOLUTION.md)
 - [用戶指南](md/FINAL_USER_GUIDE.md)
 
