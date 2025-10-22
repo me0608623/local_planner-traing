@@ -38,6 +38,8 @@ from omni.isaac.lab.sim import SimulationCfg
 
 **🚀 [立即查看快速開始指南](QUICK_START_GUIDE.md)** - 5 分鐘快速上手！
 
+**🎯 [正式訓練指令](OFFICIAL_TRAINING_COMMANDS.md)** - 完整的訓練命令和配置方案 ⭐
+
 **✅ [環境已恢復說明](TRAINING_RESTORED.md)** - 如果您之前遇到問題，環境已恢復到可訓練狀態
 
 ---
