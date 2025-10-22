@@ -2,6 +2,11 @@
 """
 手動註冊 Nova Carter 本地規劃器環境
 繞過自動導入系統，直接註冊環境到 Gymnasium
+
+⚠️ 使用方法:
+    ./isaaclab.sh -p register_local_planner.py
+    
+    注意：必須使用 isaaclab.sh 而不是系統 python！
 """
 
 import sys

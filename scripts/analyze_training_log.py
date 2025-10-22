@@ -3,6 +3,13 @@
 Nova Carter 訓練日誌分析工具
 
 自動分析訓練結果並提供診斷建議
+
+⚠️ 使用方法:
+    ./isaaclab.sh -p scripts/analyze_training_log.py
+    ./isaaclab.sh -p scripts/analyze_training_log.py --file logs/rsl_rl/your_training.log
+    ./isaaclab.sh -p scripts/analyze_training_log.py --stdin
+    
+    注意：必須使用 isaaclab.sh 而不是系統 python！
 """
 
 import re

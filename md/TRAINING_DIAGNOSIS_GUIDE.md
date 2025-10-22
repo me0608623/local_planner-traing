@@ -1,5 +1,14 @@
 # Nova Carter 訓練診斷指南
 
+## ⚠️ 重要提醒
+
+**所有命令必須使用 `./isaaclab.sh -p` 而不是系統 `python`！**
+
+Isaac Lab 需要特定的 Python 環境和依賴，直接使用系統 Python 會導致模組導入錯誤。
+
+正確：`./isaaclab.sh -p scripts/reinforcement_learning/rsl_rl/train.py ...`  
+錯誤：~~`python scripts/reinforcement_learning/rsl_rl/train.py ...`~~
+
 ## 📊 訓練結果分析框架
 
 ### 關鍵指標解讀
@@ -139,7 +148,7 @@ tensorboard --logdir logs/rsl_rl/
 
 ```bash
 # 使用訓練好的策略進行測試
-python scripts/reinforcement_learning/rsl_rl/play.py \
+./isaaclab.sh -p scripts/reinforcement_learning/rsl_rl/play.py \
     --task Isaac-Navigation-LocalPlanner-Carter-v0 \
     --num_envs 1 \
     --checkpoint logs/rsl_rl/local_planner_carter/*/model_*.pt

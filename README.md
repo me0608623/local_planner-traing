@@ -2,6 +2,20 @@
 
 基於 Isaac Lab 和 Isaac Sim 5.0 的 Nova Carter 機器人本地路徑規劃強化學習環境。
 
+## ⚠️ 重要提醒
+
+**所有命令必須使用 `./isaaclab.sh -p` 而不是系統 `python`！**
+
+Isaac Lab 需要特定的 Python 環境和依賴，直接使用系統 Python 會導致模組導入錯誤。
+
+```bash
+# ✅ 正確
+./isaaclab.sh -p scripts/reinforcement_learning/rsl_rl/train.py ...
+
+# ❌ 錯誤
+python scripts/reinforcement_learning/rsl_rl/train.py ...
+```
+
 ## 🚀 專案簡介
 
 本專案實現了 Nova Carter 移動機器人的本地路徑規劃強化學習環境，支援障礙物迴避、目標導航和 LiDAR 感知。環境完全兼容 Isaac Sim 5.0，並修復了所有已知的 PhysX tensor device 匹配問題。
@@ -52,13 +66,13 @@ python register_local_planner.py
 
 ```bash
 # GPU 模式訓練（推薦）
-python scripts/reinforcement_learning/rsl_rl/train.py \
+./isaaclab.sh -p scripts/reinforcement_learning/rsl_rl/train.py \
     --task Isaac-Navigation-LocalPlanner-Carter-v0 \
     --num_envs 4 \
     --headless
 
 # CPU 模式訓練
-python scripts/reinforcement_learning/rsl_rl/train.py \
+./isaaclab.sh -p scripts/reinforcement_learning/rsl_rl/train.py \
     --task Isaac-Navigation-LocalPlanner-Carter-CPU-v0 \
     --num_envs 2 \
     --headless
@@ -110,18 +124,18 @@ python scripts/reinforcement_learning/rsl_rl/train.py \
 
 ```bash
 # 1. 開發和訓練：使用 Headless 模式（推薦）
-python scripts/reinforcement_learning/rsl_rl/train.py \
+./isaaclab.sh -p scripts/reinforcement_learning/rsl_rl/train.py \
     --task Isaac-Navigation-LocalPlanner-Carter-v0 \
     --num_envs 4 --headless
 
 # 2. GUI 視覺化需求：使用專用配置
-python scripts/reinforcement_learning/rsl_rl/train.py \
+./isaaclab.sh -p scripts/reinforcement_learning/rsl_rl/train.py \
     --task Isaac-Navigation-LocalPlanner-Carter-GUI-Fixed-v0 \
     --num_envs 2
     # 注意：不使用 --headless
 
 # 3. 診斷問題：
-python scripts/diagnose_tensor_device.py
+./isaaclab.sh -p scripts/diagnose_tensor_device.py
 ```
 
 ## 📊 訓練診斷與改進
@@ -132,13 +146,13 @@ python scripts/diagnose_tensor_device.py
 
 ```bash
 # 自動分析訓練日誌並提供改進建議
-python scripts/analyze_training_log.py
+./isaaclab.sh -p scripts/analyze_training_log.py
 
 # 或分析特定日誌文件
-python scripts/analyze_training_log.py --file logs/rsl_rl/your_training.log
+./isaaclab.sh -p scripts/analyze_training_log.py --file logs/rsl_rl/your_training.log
 
 # 或從剪貼板分析（粘貼後按 Ctrl+D）
-python scripts/analyze_training_log.py --stdin
+./isaaclab.sh -p scripts/analyze_training_log.py --stdin
 ```
 
 ### 🎓 使用簡化環境開始訓練
@@ -147,23 +161,23 @@ python scripts/analyze_training_log.py --stdin
 
 ```bash
 # 首次訓練 - 使用簡化環境
-python scripts/reinforcement_learning/rsl_rl/train.py \
+./isaaclab.sh -p scripts/reinforcement_learning/rsl_rl/train.py \
     --task Isaac-Navigation-LocalPlanner-Carter-Easy-v0 \
     --num_envs 4 --headless
 
 # Curriculum Learning - 階段式訓練
 # Stage 1: 最簡單（1.5-3m 目標，50秒）
-python scripts/reinforcement_learning/rsl_rl/train.py \
+./isaaclab.sh -p scripts/reinforcement_learning/rsl_rl/train.py \
     --task Isaac-Navigation-LocalPlanner-Carter-Curriculum-Stage1-v0 \
     --num_envs 4 --headless
 
 # Stage 2: 中等難度（3-6m 目標，5 障礙物）
-python scripts/reinforcement_learning/rsl_rl/train.py \
+./isaaclab.sh -p scripts/reinforcement_learning/rsl_rl/train.py \
     --task Isaac-Navigation-LocalPlanner-Carter-Curriculum-Stage2-v0 \
     --num_envs 4 --headless
 
 # Stage 3: 完整難度（使用標準環境）
-python scripts/reinforcement_learning/rsl_rl/train.py \
+./isaaclab.sh -p scripts/reinforcement_learning/rsl_rl/train.py \
     --task Isaac-Navigation-LocalPlanner-Carter-v0 \
     --num_envs 8 --headless
 ```
@@ -309,7 +323,7 @@ RSL-RL PPO 算法配置位於：
 
 ```bash
 # 高性能 Headless 訓練 - 最穩定的選擇
-python scripts/reinforcement_learning/rsl_rl/train.py \
+./isaaclab.sh -p scripts/reinforcement_learning/rsl_rl/train.py \
     --task Isaac-Navigation-LocalPlanner-Carter-v0 \
     --num_envs 8 \
     --headless
@@ -319,7 +333,7 @@ python scripts/reinforcement_learning/rsl_rl/train.py \
 
 ```bash
 # GUI 模式專用配置 - 用於視覺化需求
-python scripts/reinforcement_learning/rsl_rl/train.py \
+./isaaclab.sh -p scripts/reinforcement_learning/rsl_rl/train.py \
     --task Isaac-Navigation-LocalPlanner-Carter-GUI-Fixed-v0 \
     --num_envs 2
     # 注意：環境數量較少以避免GUI渲染開銷
@@ -329,7 +343,7 @@ python scripts/reinforcement_learning/rsl_rl/train.py \
 
 ```bash
 # 適用於沒有 GPU 或最大兼容性需求
-python scripts/reinforcement_learning/rsl_rl/train.py \
+./isaaclab.sh -p scripts/reinforcement_learning/rsl_rl/train.py \
     --task Isaac-Navigation-LocalPlanner-Carter-CPU-v0 \
     --num_envs 2 \
     --headless

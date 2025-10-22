@@ -2,8 +2,14 @@
 """
 PhysX Tensor Device 診斷工具
 
-基於您提到的NVIDIA開發者論壇和GitHub issue分析，
+基於NVIDIA開發者論壇和GitHub issue分析，
 此腳本專門診斷 Isaac Sim/Lab 中的張量設備不一致問題。
+
+⚠️ 使用方法:
+    ./isaaclab.sh -p scripts/diagnose_tensor_device.py
+    ./isaaclab.sh -p scripts/diagnose_tensor_device.py --full
+    
+    注意：必須使用 isaaclab.sh 而不是系統 python！
 
 參考資料：
 - NVIDIA Developer Forums: PhysX tensors device mismatch
