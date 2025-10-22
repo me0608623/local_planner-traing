@@ -310,6 +310,7 @@ RSL-RL PPO 算法配置位於：
 
 ### 訓練相關
 - [🎯 訓練策略快速參考](TRAINING_STRATEGY_SUMMARY.md) ⭐ **必讀 - 快速上手**
+- [🎬 模擬場景設計](md/SIMULATION_SCENE_DESIGN.md) ⭐ **場景組件和USD模型**
 - [📚 完整代碼架構指南](md/CODE_ARCHITECTURE_GUIDE.md) ⭐ **深入理解**
 - [📊 訓練診斷指南](md/TRAINING_DIAGNOSIS_GUIDE.md) - 問題排查
 - [強化學習策略](md/RL_STRATEGY_ARCHITECTURE.md)
