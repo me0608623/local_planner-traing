@@ -20,7 +20,7 @@
 
 from __future__ import annotations
 
-from omni.isaac.lab.utils import configclass
+from isaaclab.utils import configclass
 
 # 導入基礎配置
 from .local_planner_env_cfg import (
@@ -30,7 +30,7 @@ from .local_planner_env_cfg import (
     CommandsCfg,
 )
 
-from omni.isaac.lab.managers import RewardTermCfg as RewTerm, SceneEntityCfg
+from isaaclab.managers import RewardTermCfg as RewTerm, SceneEntityCfg
 from isaaclab_tasks.manager_based.navigation.local_planner import mdp
 
 

@@ -20,8 +20,8 @@ from __future__ import annotations
 import torch
 from dataclasses import MISSING
 
-from omni.isaac.lab.utils import configclass
-from omni.isaac.lab.sim import SimulationCfg
+from isaaclab.utils import configclass
+from isaaclab.sim import SimulationCfg
 
 # 基於Isaac Sim 5.0兼容性的動態導入
 try:
