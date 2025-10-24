@@ -32,15 +32,27 @@ from omni.isaac.lab.utils import configclass
 from omni.isaac.lab.sim import SimulationCfg
 ```
 
-**詳細說明**: 請參閱 [Isaac Lab v2.2 API 變更指南](md/ISAAC_LAB_V2_2_API_CHANGES.md)
-
 ---
 
-**🚀 [立即查看快速開始指南](QUICK_START_GUIDE.md)** - 5 分鐘快速上手！
+## 📚 核心文檔
 
-**🎯 [正式訓練指令](OFFICIAL_TRAINING_COMMANDS.md)** - 完整的訓練命令和配置方案 ⭐
+### ⭐ 兩個最重要的文檔
 
-**✅ [環境已恢復說明](TRAINING_RESTORED.md)** - 如果您之前遇到問題，環境已恢復到可訓練狀態
+1. **[訓練架構完整說明](md/訓練架構完整說明.md)** 🏗️
+   - 觀測空間 (State) 設計
+   - 動作空間 (Action) 設計
+   - 獎勵函數 (Reward) 設計
+   - Agent 神經網路架構
+   - 訓練參數配置
+   - 如何觀察訓練過程
+   - 代碼架構說明
+
+2. **[指令快速參考](md/指令快速參考.md)** 🚀
+   - 訓練指令
+   - 測試模型指令
+   - 觀察訓練結果
+   - 查看代碼架構
+   - 常見問題排查
 
 ---
 
@@ -52,10 +64,12 @@ from omni.isaac.lab.sim import SimulationCfg
 
 - 🤖 **Nova Carter 機器人模擬**：完整的差動驅動機器人模型
 - 🎯 **目標導航任務**：智能體需學習從起點導航到目標點
-- 👁️ **LiDAR 感知**：360度雷射雷達感測器進行環境感知
-- 🚧 **動態障礙物**：隨機生成的障礙物環境
-- ⚡ **多模式支援**：CPU/GPU 訓練模式和不同複雜度配置
+- 👁️ **LiDAR 感知**：360度雷射雷達感測器進行環境感知（每度1條射線，共360條）
+- 🚧 **障礙物環境**：隨機生成的靜態障礙物
+- ⚡ **多環境並行**：支援 48 個環境同時訓練
 - 🔧 **Isaac Sim 5.0 兼容**：完全支援最新版本的 Isaac Sim
+
+---
 
 ## 📋 環境要求
 
@@ -64,6 +78,8 @@ from omni.isaac.lab.sim import SimulationCfg
 - **Python 3.11**
 - **CUDA 12.x** (GPU 模式)
 - **RSL-RL** 強化學習庫
+
+---
 
 ## 🛠️ 安裝和設置
 
@@ -85,329 +101,225 @@ ls -la _isaac_sim  # 應該指向您的 Isaac Sim 安裝目錄
 環境會在導入時自動註冊，或可手動註冊：
 
 ```bash
-python register_local_planner.py
+./isaaclab.sh -p register_local_planner.py
 ```
 
-## 🎮 使用方法
-
-### 基本訓練
+### 3. 驗證環境
 
 ```bash
-# GPU 模式訓練（推薦）
+# 列出可用環境
+./isaaclab.sh -p scripts/tools/list_envs.py | grep Carter
+
+# 應該看到：Isaac-Navigation-LocalPlanner-Carter-v0
+```
+
+---
+
+## 🎮 快速開始
+
+### 訓練機器人（推薦指令）⭐
+
+```bash
+cd /home/aa/IsaacLab
+
+# 開始訓練（48 個並行環境，Headless 模式）
 ./isaaclab.sh -p scripts/reinforcement_learning/rsl_rl/train.py \
     --task Isaac-Navigation-LocalPlanner-Carter-v0 \
-    --num_envs 4 \
+    --num_envs 48 \
     --headless
-
-# CPU 模式訓練
-./isaaclab.sh -p scripts/reinforcement_learning/rsl_rl/train.py \
-    --task Isaac-Navigation-LocalPlanner-Carter-CPU-v0 \
-    --num_envs 2 \
-    --headless
 ```
 
-### 可用環境
+**訓練時間**：約 60-90 分鐘（RTX 3090/4090，3000 次迭代）
 
-| 環境名稱 | 描述 | 設備 | 適用模式 | 難度 | 推薦用途 |
-|---------|------|------|----------|------|---------|
-| `Isaac-Navigation-LocalPlanner-Carter-Easy-v0` | **簡化訓練版** ⭐ | CUDA | Headless | 簡單 | **首次訓練** |
-| `Isaac-Navigation-LocalPlanner-Carter-Curriculum-Stage1-v0` | Curriculum Stage 1 | CUDA | Headless | 最簡單 | 階段式訓練 |
-| `Isaac-Navigation-LocalPlanner-Carter-Curriculum-Stage2-v0` | Curriculum Stage 2 | CUDA | Headless | 中等 | 階段式訓練 |
-| `Isaac-Navigation-LocalPlanner-Carter-v0` | 標準配置 | CUDA | Headless | 中等 | 正常訓練 |
-| `Isaac-Navigation-LocalPlanner-Carter-CPU-v0` | CPU 優化版本 | CPU | 兩者皆可 | 中等 | 無GPU環境 |
-| `Isaac-Navigation-LocalPlanner-Carter-GPU-Fixed-v0` | GPU 優化版本 | CUDA | Headless | 高 | 高性能訓練 |
-| `Isaac-Navigation-LocalPlanner-Carter-GUI-Fixed-v0` | GUI 模式專用 | CUDA | GUI Only | 中等 | 視覺化需求 |
-| `Isaac-Navigation-LocalPlanner-Carter-IsaacSim5-v0` | Isaac Sim 5.0 | CUDA | Headless | 中等 | 新版本 |
-
-### 環境參數
+### 測試訓練好的模型
 
 ```bash
-# 調整環境數量
---num_envs 8        # 並行環境數（根據GPU記憶體調整）
-
-# 訓練步數
---max_iterations 1000
-
-# 無頭模式（服務器訓練，推薦）
---headless
-
-# 啟用視覺化（本機訓練，需要特殊配置）
-# 移除 --headless 參數，使用 GUI-Fixed 環境
-```
-
-## 🎮 GUI vs Headless 模式重要說明
-
-### 🚨 **關鍵發現**
-
-**PhysX tensor device 錯誤只在 GUI 模式出現，Headless 模式完全正常！**
-
-### 模式對比
-
-| 模式 | 狀態 | 原因 | 建議 |
-|------|------|------|------|
-| **Headless** | ✅ 完全正常 | 統一CPU處理或正確GPU管線 | **生產首選** |
-| **GUI** | ❌ 出現錯誤 | 自動啟用GPU物理管線衝突 | 使用專用修復配置 |
-
-### 最佳實踐
-
-```bash
-# 1. 開發和訓練：使用 Headless 模式（推薦）
-./isaaclab.sh -p scripts/reinforcement_learning/rsl_rl/train.py \
+# 測試模型（GUI 可視化）
+./isaaclab.sh -p scripts/reinforcement_learning/rsl_rl/play.py \
     --task Isaac-Navigation-LocalPlanner-Carter-v0 \
-    --num_envs 4 --headless
-
-# 2. GUI 視覺化需求：使用專用配置
-./isaaclab.sh -p scripts/reinforcement_learning/rsl_rl/train.py \
-    --task Isaac-Navigation-LocalPlanner-Carter-GUI-Fixed-v0 \
-    --num_envs 2
-    # 注意：不使用 --headless
-
-# 3. 診斷問題：
-./isaaclab.sh -p scripts/diagnose_tensor_device.py
+    --num_envs 1 \
+    --checkpoint logs/rsl_rl/local_planner_carter/[日期]/model_2999.pt
 ```
 
-## 📊 訓練診斷與改進
-
-### 🔍 自動診斷訓練結果
-
-如果您的訓練結果不理想（如：獎勵持續為負、從未到達目標、100%超時），使用我們的診斷工具：
+### 觀察訓練過程
 
 ```bash
-# 自動分析訓練日誌並提供改進建議
-./isaaclab.sh -p scripts/analyze_training_log.py
+# 啟動 TensorBoard 查看訓練曲線
+tensorboard --logdir logs/rsl_rl/
 
-# 或分析特定日誌文件
-./isaaclab.sh -p scripts/analyze_training_log.py --file logs/rsl_rl/your_training.log
-
-# 或從剪貼板分析（粘貼後按 Ctrl+D）
-./isaaclab.sh -p scripts/analyze_training_log.py --stdin
+# 瀏覽器打開：http://localhost:6006
 ```
 
-### 🎓 使用簡化環境開始訓練
+**📖 更多詳細指令請參閱：[指令快速參考](md/指令快速參考.md)**
 
-如果您是首次訓練 Nova Carter 導航任務，**強烈建議從簡化環境開始**：
+---
+
+## 📊 訓練架構概覽
+
+### 觀測空間 (369 維)
+
+- **LiDAR 距離** [360]：360° 雷射掃描數據
+- **機器人線速度** [3]：`[vx, vy, vz]` 在機器人座標系
+- **機器人角速度** [3]：`[wx, wy, wz]` 在機器人座標系
+- **目標相對位置** [2]：`[dx, dy]` 在機器人座標系
+- **到目標距離** [1]：歐幾里得距離
+
+### 動作空間 (2 維)
+
+- **線速度指令** [1]：-2.0 到 +2.0 m/s
+- **角速度指令** [1]：-π 到 +π rad/s
+
+### 獎勵函數
+
+```
+總獎勵 = 
+  + progress_to_goal × 10.0        # 接近目標
+  + reached_goal × 100.0           # 到達目標
+  - obstacle_proximity × 5.0       # 靠近障礙物
+  - collision × 50.0               # 碰撞
+  - ang_vel_penalty × 0.01         # 角速度過大
+  - standstill × 0.1               # 靜止不動
+```
+
+### Agent 架構
+
+**演算法**：PPO (Proximal Policy Optimization)
+
+**神經網路**：
+- Actor Network: `[369] → [256] → [256] → [128] → [2]`
+- Critic Network: `[369] → [256] → [256] → [128] → [1]`
+- 激活函數：ELU
+- 總參數量：約 250K-300K
+
+**📖 詳細架構說明請參閱：[訓練架構完整說明](md/訓練架構完整說明.md)**
+
+---
+
+## 📁 代碼結構
+
+```
+source/isaaclab_tasks/isaaclab_tasks/manager_based/navigation/local_planner/
+├─ local_planner_env_cfg.py          # 環境配置（主文件）⭐
+├─ __init__.py                       # 環境註冊
+├─ agents/
+│  ├─ rsl_rl_ppo_cfg.py             # PPO 配置 ⭐
+│  └─ sb3_ppo_cfg.py                # Stable Baselines3 配置
+└─ mdp/                              # MDP 組件實現 ⭐
+   ├─ observations.py               # 觀測函數實現
+   ├─ actions.py                    # 動作轉換
+   ├─ rewards.py                    # 獎勵計算
+   └─ terminations.py               # 終止條件
+
+scripts/reinforcement_learning/rsl_rl/
+├─ train.py                          # 訓練腳本 ⭐
+└─ play.py                           # 測試腳本
+```
+
+---
+
+## 🎯 訓練結果位置
+
+訓練完成後，結果保存在：
+
+```
+logs/rsl_rl/local_planner_carter/
+└─ [訓練日期時間]/
+   ├─ model_0.pt                # 初始模型
+   ├─ model_100.pt              # 第 100 次迭代
+   ├─ ...
+   ├─ model_2999.pt             # 最終模型
+   ├─ events.out.tfevents.*     # TensorBoard 日誌
+   └─ params/                   # 訓練配置
+      ├─ env.json
+      └─ agent.json
+```
+
+---
+
+## 🔧 常見問題
+
+### 1. 環境無法註冊
 
 ```bash
-# 首次訓練 - 使用簡化環境
-./isaaclab.sh -p scripts/reinforcement_learning/rsl_rl/train.py \
-    --task Isaac-Navigation-LocalPlanner-Carter-Easy-v0 \
-    --num_envs 4 --headless
+# 手動註冊環境
+./isaaclab.sh -p register_local_planner.py
 
-# Curriculum Learning - 階段式訓練
-# Stage 1: 最簡單（1.5-3m 目標，50秒）
-./isaaclab.sh -p scripts/reinforcement_learning/rsl_rl/train.py \
-    --task Isaac-Navigation-LocalPlanner-Carter-Curriculum-Stage1-v0 \
-    --num_envs 4 --headless
-
-# Stage 2: 中等難度（3-6m 目標，5 障礙物）
-./isaaclab.sh -p scripts/reinforcement_learning/rsl_rl/train.py \
-    --task Isaac-Navigation-LocalPlanner-Carter-Curriculum-Stage2-v0 \
-    --num_envs 4 --headless
-
-# Stage 3: 完整難度（使用標準環境）
-./isaaclab.sh -p scripts/reinforcement_learning/rsl_rl/train.py \
-    --task Isaac-Navigation-LocalPlanner-Carter-v0 \
-    --num_envs 8 --headless
+# 驗證
+./isaaclab.sh -p scripts/tools/list_envs.py | grep Carter
 ```
 
-### 📈 訓練成功指標
+### 2. 模組導入錯誤
 
-**良好的訓練應該顯示**：
+確保使用 `./isaaclab.sh -p` 而不是系統 Python。
+
+### 3. CUDA 錯誤
+
+```bash
+# 檢查 CUDA 可用性
+./isaaclab.sh -p -c "import torch; print(torch.cuda.is_available())"
+```
+
+### 4. 訓練很慢
+
+- 使用 Headless 模式：`--headless`
+- 減少環境數量：`--num_envs 16`
+- 確保使用 GPU
+
+**📖 更多問題排查請參閱：[指令快速參考](md/指令快速參考.md)**
+
+---
+
+## 📈 性能指標
+
+### 訓練配置
+
+- **並行環境數**：48
+- **每環境步數**：24
+- **總迭代次數**：3000
+- **總訓練步數**：3,456,000
+- **訓練時間**：60-90 分鐘（RTX 3090/4090）
+
+### 預期結果
+
+良好的訓練應該顯示：
 - ✅ 平均獎勵 > -500（理想 > 0）
 - ✅ 成功到達目標率 > 10%
 - ✅ 超時率 < 80%
 - ✅ 平均距離誤差 < 2.0m
 
-**如果您看到**：
-- ❌ 平均獎勵 < -1000
-- ❌ 成功率 = 0%
-- ❌ 超時率 = 100%
-- ❌ 距離誤差 > 4m
+---
 
-→ 請使用 `analyze_training_log.py` 診斷並考慮切換到簡化環境。
+## 📝 授權
 
-## 📊 環境詳細說明
-
-### 觀測空間
-
-- **LiDAR 數據**: 360度掃描，範圍10米
-- **目標相對位置**: 機器人到目標的相對距離和角度
-- **機器人速度**: 當前線速度和角速度
-- **歷史動作**: 前一時步的控制指令
-
-### 動作空間
-
-- **線速度指令**: [-2.0, 2.0] m/s
-- **角速度指令**: [-3.14, 3.14] rad/s
-
-### 獎勵函數
-
-- **到達目標**: +1000（終端獎勵）
-- **接近目標**: 基於距離減少的連續獎勵
-- **避開障礙物**: 基於 LiDAR 距離的懲罰
-- **超時懲罰**: -100（超過最大步數）
-
-## 🔧 配置選項
-
-### 環境配置文件
-
-- `local_planner_env_cfg.py`: 基本 GPU 配置
-- `local_planner_env_cfg_cpu.py`: CPU 優化配置
-- `local_planner_env_cfg_gpu_optimized.py`: GPU 高性能配置
-- `local_planner_env_cfg_isaac_sim_5_fixed.py`: Isaac Sim 5.0 兼容配置
-
-### 訓練配置
-
-RSL-RL PPO 算法配置位於：
-- `agents/rsl_rl_ppo_cfg.py`: GPU 訓練配置
-- `agents/rsl_rl_ppo_cfg_cpu.py`: CPU 訓練配置
-
-## 🐛 故障排除
-
-### 常見問題
-
-1. **PhysX tensor device mismatch** ⭐ **官方已知問題**
-   ```
-   錯誤：[Error] [omni.physx.tensors.plugin] Incompatible device of velocity tensor 
-         in function getVelocities: expected device 0, received device -1
-   
-   原因：NVIDIA官方確認的API問題（非用戶環境錯誤）
-         - NVIDIA Developer Forums 已記錄
-         - Isaac Lab GitHub Issues 官方bug報告
-   
-   解決方案：使用我們的修復配置
-   --task Isaac-Navigation-LocalPlanner-Carter-GPU-Fixed-v0
-   
-   診斷工具：
-   python scripts/diagnose_tensor_device.py --full
-   ```
-
-2. **模組導入錯誤 (omni.isaac.core)**
-   ```
-   解決方案：使用 Isaac Sim 5.0 兼容配置
-   --task Isaac-Navigation-LocalPlanner-Carter-IsaacSim5-v0
-   ```
-
-3. **記憶體不足**
-   ```
-   解決方案：減少並行環境數量
-   --num_envs 2  # 或更少
-   ```
-
-4. **訓練不穩定**
-   ```
-   解決方案：使用 CPU 模式或調整超參數
-   --task Isaac-Navigation-LocalPlanner-Carter-CPU-v0
-   ```
-
-### 詳細故障排除
-
-更多詳細的故障排除指南請參考：
-- [🔍 NVIDIA官方問題分析](md/NVIDIA_OFFICIAL_PHYSX_ISSUE_ANALYSIS.md) ⭐ **必讀**
-- [PhysX 修復指南](md/PHYSX_TENSOR_DEVICE_FIX.md)
-- [Isaac Sim 5.0 兼容性](md/ISAAC_SIM_5_MODULE_RESTRUCTURE_FIX.md)
-- [完整問題解決方案](md/ALL_ISSUES_FIXED_SUMMARY.md)
-
-## 📖 技術文檔
-
-### 訓練相關
-- [🎯 訓練策略快速參考](TRAINING_STRATEGY_SUMMARY.md) ⭐ **必讀 - 快速上手**
-- [🎬 模擬場景設計](md/SIMULATION_SCENE_DESIGN.md) ⭐ **場景組件和USD模型**
-- [🤖 Agent 如何感知目標](md/HOW_AGENT_SEES_GOAL.md) ⭐ **觀測空間詳解**
-- [🎯 目標系統說明](md/GOAL_SYSTEM_EXPLANATION.md) ⭐ **目標在哪裡？如何看到？**
-- [🎮 並行訓練與碰撞配置](md/PARALLEL_TRAINING_AND_COLLISION.md) ⭐ **多環境訓練**
-- [📚 完整代碼架構指南](md/CODE_ARCHITECTURE_GUIDE.md) ⭐ **深入理解**
-- [📊 訓練診斷指南](md/TRAINING_DIAGNOSIS_GUIDE.md) - 問題排查
-- [🔍 場景配置快速查找](WHERE_TO_FIND_SCENE_CONFIG.txt) - 代碼行號參考
-- [🤖 Agent目標感知圖示](AGENT_GOAL_PERCEPTION.txt) - 視覺化說明
-- [🎯 目標可視化指南](GOAL_VISUALIZATION_GUIDE.txt) - 快速參考
-- [強化學習策略](md/RL_STRATEGY_ARCHITECTURE.md)
-- [項目架構總覽](md/PROJECT_ARCHITECTURE_SUMMARY.md)
-
-### 問題解決
-- [🔧 Isaac Lab v2.2 API 變更](md/ISAAC_LAB_V2_2_API_CHANGES.md) ⭐ **必讀 - 模組重命名**
-- [🎮 GUI vs Headless 深度分析](md/GUI_VS_HEADLESS_PHYSX_ANALYSIS.md) ⭐ **重要發現**
-- [🔍 NVIDIA官方問題分析](md/NVIDIA_OFFICIAL_PHYSX_ISSUE_ANALYSIS.md) ⭐ **官方確認**
-- [PhysX 修復指南](md/PHYSX_TENSOR_DEVICE_FIX.md)
-- [Isaac Sim 5.0 兼容性](md/ISAAC_SIM_5_MODULE_RESTRUCTURE_FIX.md)
-- [完整問題解決方案](md/ALL_ISSUES_FIXED_SUMMARY.md)
-
-### 使用指南
-- [最終解決方案](md/FINAL_ISAAC_SIM_5_SOLUTION.md)
-- [用戶指南](md/FINAL_USER_GUIDE.md)
-
-## 🏗️ 項目結構
-
-```
-├── source/isaaclab_tasks/isaaclab_tasks/manager_based/navigation/local_planner/
-│   ├── __init__.py                 # 環境註冊
-│   ├── local_planner_env_cfg.py    # 基本環境配置
-│   ├── local_planner_env_cfg_*.py  # 各種配置變體
-│   ├── agents/                     # 訓練算法配置
-│   └── mdp/                        # MDP 組件
-│       ├── actions.py              # 動作定義
-│       ├── observations.py         # 觀測定義
-│       ├── rewards.py              # 獎勵函數
-│       └── terminations.py         # 終止條件
-├── scripts/reinforcement_learning/rsl_rl/
-│   └── train.py                    # 訓練腳本
-├── register_local_planner.py       # 手動環境註冊
-└── md/                             # 技術文檔
-```
-
-## 🎯 性能建議
-
-### Headless 模式訓練 (強烈推薦) ⭐
-
-```bash
-# 高性能 Headless 訓練 - 最穩定的選擇
-./isaaclab.sh -p scripts/reinforcement_learning/rsl_rl/train.py \
-    --task Isaac-Navigation-LocalPlanner-Carter-v0 \
-    --num_envs 8 \
-    --headless
-```
-
-### GUI 模式訓練 (特殊需求)
-
-```bash
-# GUI 模式專用配置 - 用於視覺化需求
-./isaaclab.sh -p scripts/reinforcement_learning/rsl_rl/train.py \
-    --task Isaac-Navigation-LocalPlanner-Carter-GUI-Fixed-v0 \
-    --num_envs 2
-    # 注意：環境數量較少以避免GUI渲染開銷
-```
-
-### CPU 訓練 (兼容性最佳)
-
-```bash
-# 適用於沒有 GPU 或最大兼容性需求
-./isaaclab.sh -p scripts/reinforcement_learning/rsl_rl/train.py \
-    --task Isaac-Navigation-LocalPlanner-Carter-CPU-v0 \
-    --num_envs 2 \
-    --headless
-```
-
-### 工作流程建議
-
-1. **開發階段**: 使用 Headless 模式快速迭代
-2. **除錯階段**: 偶爾使用 GUI 模式觀察行為  
-3. **生產訓練**: 始終使用 Headless 模式
-4. **結果展示**: 訓練完成後使用 play 腳本
-
-## 🤝 貢獻
-
-歡迎提交 Issue 和 Pull Request！
-
-## 📄 授權
-
-本專案遵循 Isaac Lab 的授權條款。
-
-## 🙏 致謝
-
-- [Isaac Lab](https://github.com/isaac-sim/IsaacLab) 團隊
-- NVIDIA Isaac Sim 開發團隊
-- RSL-RL 強化學習庫
+本專案基於 Isaac Lab 的 BSD-3-Clause 授權。
 
 ---
 
-**開始您的 Nova Carter 強化學習之旅！** 🚀
+## 🙏 致謝
+
+- **NVIDIA Isaac Sim & Isaac Lab** - 提供強大的機器人模擬平台
+- **RSL-RL** - 提供高效的 RL 訓練框架
+- **Nova Carter** - NVIDIA 官方移動機器人平台
+
+---
+
+## 📞 支援
+
+- **核心文檔**：
+  - [訓練架構完整說明](md/訓練架構完整說明.md)
+  - [指令快速參考](md/指令快速參考.md)
+
+- **Isaac Lab 官方文檔**：https://isaac-sim.github.io/IsaacLab/
+- **Isaac Sim 文檔**：https://docs.omniverse.nvidia.com/isaacsim/
+
+---
+
+**🎯 開始訓練您的 Nova Carter 導航 Agent！**
+
+```bash
+cd /home/aa/IsaacLab
+./isaaclab.sh -p scripts/reinforcement_learning/rsl_rl/train.py \
+    --task Isaac-Navigation-LocalPlanner-Carter-v0 \
+    --num_envs 48 \
+    --headless
+```

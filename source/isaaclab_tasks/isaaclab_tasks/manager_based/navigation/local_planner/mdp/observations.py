@@ -41,7 +41,7 @@ def lidar_obs(env: ManagerBasedRLEnv, sensor_cfg: SceneEntityCfg) -> torch.Tenso
         
         # 計算每條射線的距離
         distances = torch.norm(hit_points - sensor_pos, dim=-1)  # (num_envs, num_rays)
-        print("✅ 使用 ray_hits_w API (2025+ / Sim 5.0) - 手動計算距離")
+        # print("✅ 使用 ray_hits_w API (2025+ / Sim 5.0) - 手動計算距離")
         
     elif hasattr(data, "hit_distances"):
         distances = data.hit_distances  # Isaac Lab 2025.1
