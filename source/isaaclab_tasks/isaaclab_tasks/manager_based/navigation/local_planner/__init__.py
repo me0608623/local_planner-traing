@@ -33,6 +33,27 @@ from .local_planner_env_cfg_gui_fixed import (
     LocalPlannerEnvCfg_GUI_SIMPLE,
     LocalPlannerEnvCfg_DIAGNOSTIC
 )
+# 🔥 PCCBF-MPC 啟發版本（基於 2025 年論文）
+from .local_planner_env_cfg_pccbf import (
+    LocalPlannerEnvCfg_PCCBF_EASY,
+    LocalPlannerEnvCfg_PCCBF_MEDIUM,
+    LocalPlannerEnvCfg_PCCBF_HARD,
+)
+# 🔥 PCCBF 簡化版（推薦先用這個）
+from .local_planner_env_cfg_pccbf_simple import (
+    LocalPlannerEnvCfg_PCCBF_SIMPLE,
+)
+# 🔬 DEBUG 版本（診斷用）
+from .local_planner_env_cfg_debug import (
+    LocalPlannerEnvCfg_DEBUG,
+)
+# ✅ Simple v2（基於DEBUG成功經驗的優化版）
+from .local_planner_env_cfg_simple_v2 import (
+    LocalPlannerEnvCfg_SIMPLE_V2_STAGE1,
+    LocalPlannerEnvCfg_SIMPLE_V2_STAGE1_5,
+    LocalPlannerEnvCfg_SIMPLE_V2_STAGE2,
+    LocalPlannerEnvCfg_SIMPLE_V2_STAGE3,
+)
 
 ##
 # Register Gym environments
@@ -195,6 +216,116 @@ gym.register(
     disable_env_checker=True,
     kwargs={
         "env_cfg_entry_point": f"{__name__}.local_planner_env_cfg_gui_fixed:LocalPlannerEnvCfg_DIAGNOSTIC",
+        "rsl_rl_cfg_entry_point": f"{agents.__name__}.rsl_rl_ppo_cfg:LocalPlannerPPORunnerCfg",
+        "sb3_cfg_entry_point": f"{agents.__name__}.sb3_ppo_cfg:LocalPlannerSB3PPORunnerCfg",
+    },
+)
+
+##
+# 🔥 PCCBF-MPC 啟發版本（基於 2025 年論文）
+# 論文：Point Cloud-Based Control Barrier Functions for MPC
+##
+
+# 🎯 PCCBF 簡化版（推薦！穩定性最高）
+gym.register(
+    id="Isaac-Navigation-LocalPlanner-PCCBF-Simple-v0",
+    entry_point="isaaclab.envs:ManagerBasedRLEnv",
+    disable_env_checker=True,
+    kwargs={
+        "env_cfg_entry_point": f"{__name__}.local_planner_env_cfg_pccbf_simple:LocalPlannerEnvCfg_PCCBF_SIMPLE",
+        "rsl_rl_cfg_entry_point": f"{agents.__name__}.rsl_rl_ppo_cfg:LocalPlannerPPORunnerCfg",
+        "sb3_cfg_entry_point": f"{agents.__name__}.sb3_ppo_cfg:LocalPlannerSB3PPORunnerCfg",
+    },
+)
+
+# 🎓 課程學習 - 階段 1：簡單版（帶預測觀測）
+gym.register(
+    id="Isaac-Navigation-LocalPlanner-PCCBF-Easy-v0",
+    entry_point="isaaclab.envs:ManagerBasedRLEnv",
+    disable_env_checker=True,
+    kwargs={
+        "env_cfg_entry_point": f"{__name__}.local_planner_env_cfg_pccbf:LocalPlannerEnvCfg_PCCBF_EASY",
+        "rsl_rl_cfg_entry_point": f"{agents.__name__}.rsl_rl_ppo_cfg:LocalPlannerPPORunnerCfg",
+        "sb3_cfg_entry_point": f"{agents.__name__}.sb3_ppo_cfg:LocalPlannerSB3PPORunnerCfg",
+    },
+)
+
+# 🎓 課程學習 - 階段 2：中等版（EASY 成功後進階）
+gym.register(
+    id="Isaac-Navigation-LocalPlanner-PCCBF-Medium-v0",
+    entry_point="isaaclab.envs:ManagerBasedRLEnv",
+    disable_env_checker=True,
+    kwargs={
+        "env_cfg_entry_point": f"{__name__}.local_planner_env_cfg_pccbf:LocalPlannerEnvCfg_PCCBF_MEDIUM",
+        "rsl_rl_cfg_entry_point": f"{agents.__name__}.rsl_rl_ppo_cfg:LocalPlannerPPORunnerCfg",
+        "sb3_cfg_entry_point": f"{agents.__name__}.sb3_ppo_cfg:LocalPlannerSB3PPORunnerCfg",
+    },
+)
+
+# 🎓 課程學習 - 階段 3：困難版（MEDIUM 成功後進階）
+gym.register(
+    id="Isaac-Navigation-LocalPlanner-PCCBF-Hard-v0",
+    entry_point="isaaclab.envs:ManagerBasedRLEnv",
+    disable_env_checker=True,
+    kwargs={
+        "env_cfg_entry_point": f"{__name__}.local_planner_env_cfg_pccbf:LocalPlannerEnvCfg_PCCBF_HARD",
+        "rsl_rl_cfg_entry_point": f"{agents.__name__}.rsl_rl_ppo_cfg:LocalPlannerPPORunnerCfg",
+        "sb3_cfg_entry_point": f"{agents.__name__}.sb3_ppo_cfg:LocalPlannerSB3PPORunnerCfg",
+    },
+)
+
+# 🔬 DEBUG 版本（診斷用 - 極簡配置）
+gym.register(
+    id="Isaac-Navigation-LocalPlanner-DEBUG-v0",
+    entry_point="isaaclab.envs:ManagerBasedRLEnv",
+    disable_env_checker=True,
+    kwargs={
+        "env_cfg_entry_point": f"{__name__}.local_planner_env_cfg_debug:LocalPlannerEnvCfg_DEBUG",
+        "rsl_rl_cfg_entry_point": f"{agents.__name__}.rsl_rl_ppo_cfg:LocalPlannerPPORunnerCfg",
+        "sb3_cfg_entry_point": f"{agents.__name__}.sb3_ppo_cfg:LocalPlannerSB3PPORunnerCfg",
+    },
+)
+
+# ✅ Simple v2（基於DEBUG成功，逐步增加難度）
+gym.register(
+    id="Isaac-Navigation-LocalPlanner-Simple-v2-Stage1-v0",
+    entry_point="isaaclab.envs:ManagerBasedRLEnv",
+    disable_env_checker=True,
+    kwargs={
+        "env_cfg_entry_point": f"{__name__}.local_planner_env_cfg_simple_v2:LocalPlannerEnvCfg_SIMPLE_V2_STAGE1",
+        "rsl_rl_cfg_entry_point": f"{agents.__name__}.rsl_rl_ppo_cfg:LocalPlannerPPORunnerCfg",
+        "sb3_cfg_entry_point": f"{agents.__name__}.sb3_ppo_cfg:LocalPlannerSB3PPORunnerCfg",
+    },
+)
+
+gym.register(
+    id="Isaac-Navigation-LocalPlanner-Simple-v2-Stage1.5-v0",
+    entry_point="isaaclab.envs:ManagerBasedRLEnv",
+    disable_env_checker=True,
+    kwargs={
+        "env_cfg_entry_point": f"{__name__}.local_planner_env_cfg_simple_v2:LocalPlannerEnvCfg_SIMPLE_V2_STAGE1_5",
+        "rsl_rl_cfg_entry_point": f"{agents.__name__}.rsl_rl_ppo_cfg:LocalPlannerPPORunnerCfg",
+        "sb3_cfg_entry_point": f"{agents.__name__}.sb3_ppo_cfg:LocalPlannerSB3PPORunnerCfg",
+    },
+)
+
+gym.register(
+    id="Isaac-Navigation-LocalPlanner-Simple-v2-Stage2-v0",
+    entry_point="isaaclab.envs:ManagerBasedRLEnv",
+    disable_env_checker=True,
+    kwargs={
+        "env_cfg_entry_point": f"{__name__}.local_planner_env_cfg_simple_v2:LocalPlannerEnvCfg_SIMPLE_V2_STAGE2",
+        "rsl_rl_cfg_entry_point": f"{agents.__name__}.rsl_rl_ppo_cfg:LocalPlannerPPORunnerCfg",
+        "sb3_cfg_entry_point": f"{agents.__name__}.sb3_ppo_cfg:LocalPlannerSB3PPORunnerCfg",
+    },
+)
+
+gym.register(
+    id="Isaac-Navigation-LocalPlanner-Simple-v2-Stage3-v0",
+    entry_point="isaaclab.envs:ManagerBasedRLEnv",
+    disable_env_checker=True,
+    kwargs={
+        "env_cfg_entry_point": f"{__name__}.local_planner_env_cfg_simple_v2:LocalPlannerEnvCfg_SIMPLE_V2_STAGE3",
         "rsl_rl_cfg_entry_point": f"{agents.__name__}.rsl_rl_ppo_cfg:LocalPlannerPPORunnerCfg",
         "sb3_cfg_entry_point": f"{agents.__name__}.sb3_ppo_cfg:LocalPlannerSB3PPORunnerCfg",
     },
