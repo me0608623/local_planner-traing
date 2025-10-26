@@ -310,6 +310,17 @@ gym.register(
 )
 
 gym.register(
+    id="Isaac-Navigation-LocalPlanner-Simple-v2-Stage1.75-v0",
+    entry_point="isaaclab.envs:ManagerBasedRLEnv",
+    disable_env_checker=True,
+    kwargs={
+        "env_cfg_entry_point": f"{__name__}.local_planner_env_cfg_simple_v2:LocalPlannerEnvCfg_SIMPLE_V2_STAGE1_75",
+        "rsl_rl_cfg_entry_point": f"{agents.__name__}.rsl_rl_ppo_cfg:LocalPlannerPPORunnerCfg",
+        "sb3_cfg_entry_point": f"{agents.__name__}.sb3_ppo_cfg:LocalPlannerSB3PPORunnerCfg",
+    },
+)
+
+gym.register(
     id="Isaac-Navigation-LocalPlanner-Simple-v2-Stage2-v0",
     entry_point="isaaclab.envs:ManagerBasedRLEnv",
     disable_env_checker=True,

@@ -106,6 +106,26 @@ class SimpleV2CommandsCfg_STAGE1_5(CommandsCfg):
 
 
 @configclass
+class SimpleV2CommandsCfg_STAGE1_75(CommandsCfg):
+    """階段1.75：再次過渡（NEW！）"""
+    
+    goal_command = mdp.UniformPoseCommandCfg(
+        asset_name="robot",
+        body_name="chassis_link",
+        resampling_time_range=(17.0, 17.0),
+        debug_vis=True,
+        ranges=mdp.UniformPoseCommandCfg.Ranges(
+            pos_x=(0.35, 1.4),  # Stage 1.5和2之間（0.3-1.3 → 0.4-1.5）
+            pos_y=(-0.7, 0.7),  # Stage 1.5和2之間
+            pos_z=(0.0, 0.0),
+            roll=(0.0, 0.0),
+            pitch=(0.0, 0.0),
+            yaw=(0.0, 0.0),
+        ),
+    )
+
+
+@configclass
 class SimpleV2CommandsCfg_STAGE2(CommandsCfg):
     """階段2：近目標（調整：縮小與Stage1的差距）"""
     
@@ -217,11 +237,38 @@ class LocalPlannerEnvCfg_SIMPLE_V2_STAGE1_5(LocalPlannerEnvCfg):
 
 
 @configclass
-class LocalPlannerEnvCfg_SIMPLE_V2_STAGE2(LocalPlannerEnvCfg):
-    """【Simple v2 - 階段2】稍微增加難度（已再次優化）
+class LocalPlannerEnvCfg_SIMPLE_V2_STAGE1_75(LocalPlannerEnvCfg):
+    """【Simple v2 - 階段1.75】再次過渡（NEW！）
     
     進階條件：Stage 1.5 成功率 > 12%
     預期：500 iterations 後成功率 > 8%
+    
+    配置：
+    - 目標距離：0.35-1.4米（Stage 1.5和2的中間）
+    - 環境數量：40（32和48的中間）
+    - Episode時間：17秒
+    """
+    
+    observations: ObservationsCfg = ObservationsCfg()
+    rewards: SimpleV2RewardsCfg = SimpleV2RewardsCfg()
+    commands: SimpleV2CommandsCfg_STAGE1_75 = SimpleV2CommandsCfg_STAGE1_75()
+    terminations: SimpleV2TerminationsCfg = SimpleV2TerminationsCfg()
+    scene: LocalPlannerSceneCfg = LocalPlannerSceneCfg(num_envs=40, env_spacing=12.0)
+    actions: ActionsCfg = ActionsCfg()
+    events: EventCfg = EventCfg()
+    
+    def __post_init__(self):
+        super().__post_init__()
+        self.episode_length_s = 17.0
+        print("🎯 [Simple v2 - Stage 1.75] 再次過渡（0.35-1.4米，40環境）")
+
+
+@configclass
+class LocalPlannerEnvCfg_SIMPLE_V2_STAGE2(LocalPlannerEnvCfg):
+    """【Simple v2 - 階段2】稍微增加難度（已再次優化）
+    
+    進階條件：Stage 1.75 成功率 > 8%
+    預期：500 iterations 後成功率 > 6-10%
     
     優化（v2）：
     - 環境數量從64降到48（減少學習噪音）
