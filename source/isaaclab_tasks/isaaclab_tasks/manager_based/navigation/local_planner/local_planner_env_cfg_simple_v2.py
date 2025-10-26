@@ -218,29 +218,29 @@ class LocalPlannerEnvCfg_SIMPLE_V2_STAGE1_5(LocalPlannerEnvCfg):
 
 @configclass
 class LocalPlannerEnvCfg_SIMPLE_V2_STAGE2(LocalPlannerEnvCfg):
-    """【Simple v2 - 階段2】稍微增加難度（已優化）
+    """【Simple v2 - 階段2】稍微增加難度（已再次優化）
     
-    進階條件：Stage 1 成功率 > 15%
-    預期：500 iterations 後成功率 > 12%（調整後目標）
+    進階條件：Stage 1.5 成功率 > 12%
+    預期：500 iterations 後成功率 > 8%
     
-    優化：
-    - 目標距離從0.5-2.0米改為0.4-1.5米（更溫和的難度增加）
-    - 環境數量64（原128），減少學習噪音
-    - Episode時間18秒（原20秒），加快迭代
+    優化（v2）：
+    - 環境數量從64降到48（減少學習噪音）
+    - 目標距離保持0.4-1.5米
+    - Episode時間保持18秒
     """
     
     observations: ObservationsCfg = ObservationsCfg()
     rewards: SimpleV2RewardsCfg = SimpleV2RewardsCfg()
     commands: SimpleV2CommandsCfg_STAGE2 = SimpleV2CommandsCfg_STAGE2()
     terminations: SimpleV2TerminationsCfg = SimpleV2TerminationsCfg()
-    scene: LocalPlannerSceneCfg = LocalPlannerSceneCfg(num_envs=64, env_spacing=12.0)  # 🔧 從128降到64
+    scene: LocalPlannerSceneCfg = LocalPlannerSceneCfg(num_envs=48, env_spacing=12.0)  # 🔧🔧 從64降到48
     actions: ActionsCfg = ActionsCfg()
     events: EventCfg = EventCfg()
     
     def __post_init__(self):
         super().__post_init__()
-        self.episode_length_s = 18.0  # 🔧 從20秒改為18秒
-        print("🎯 [Simple v2 - Stage 2] 近目標（0.4-1.5米，已優化）")
+        self.episode_length_s = 18.0
+        print("🎯 [Simple v2 - Stage 2] 近目標（0.4-1.5米，環境數48）")
 
 
 @configclass
