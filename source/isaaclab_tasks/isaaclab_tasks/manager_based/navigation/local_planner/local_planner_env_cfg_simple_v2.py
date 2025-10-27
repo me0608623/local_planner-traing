@@ -50,7 +50,7 @@ class SimpleV2RewardsCfg:
     reached_goal = RewTerm(
         func=mdp.reached_goal_reward,
         weight=500.0,  # 極高獎勵（DEBUG版本證明有效）
-        params={"command_name": "goal_command", "threshold": 0.8},  # 稍微收緊
+        params={"command_name": "goal_command", "threshold": 1.0},  # 🔧 從0.8放寬到1.0米
     )
     
     # ❌ 防止靜止
@@ -176,7 +176,7 @@ class SimpleV2TerminationsCfg(TerminationsCfg):
     
     goal_reached = DoneTerm(
         func=mdp.goal_reached,
-        params={"command_name": "goal_command", "threshold": 0.8},
+        params={"command_name": "goal_command", "threshold": 1.0},  # 🔧 從0.8放寬到1.0米
     )
 
 
