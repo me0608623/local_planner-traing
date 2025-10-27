@@ -47,6 +47,10 @@ from .local_planner_env_cfg_pccbf_simple import (
 from .local_planner_env_cfg_debug import (
     LocalPlannerEnvCfg_DEBUG,
 )
+# 🔥 動態障礙物版本（基於DEBUG成功配置）
+from .local_planner_env_cfg_dynamic import (
+    LocalPlannerEnvCfg_DYNAMIC,
+)
 # ✅ Simple v2（基於DEBUG成功經驗的優化版）
 from .local_planner_env_cfg_simple_v2 import (
     LocalPlannerEnvCfg_SIMPLE_V2_STAGE1,
@@ -281,6 +285,18 @@ gym.register(
     disable_env_checker=True,
     kwargs={
         "env_cfg_entry_point": f"{__name__}.local_planner_env_cfg_debug:LocalPlannerEnvCfg_DEBUG",
+        "rsl_rl_cfg_entry_point": f"{agents.__name__}.rsl_rl_ppo_cfg:LocalPlannerPPORunnerCfg",
+        "sb3_cfg_entry_point": f"{agents.__name__}.sb3_ppo_cfg:LocalPlannerSB3PPORunnerCfg",
+    },
+)
+
+# 🔥 動態障礙物版本（基於DEBUG成功配置）
+gym.register(
+    id="Isaac-Navigation-LocalPlanner-Dynamic-v0",
+    entry_point="isaaclab.envs:ManagerBasedRLEnv",
+    disable_env_checker=True,
+    kwargs={
+        "env_cfg_entry_point": f"{__name__}.local_planner_env_cfg_dynamic:LocalPlannerEnvCfg_DYNAMIC",
         "rsl_rl_cfg_entry_point": f"{agents.__name__}.rsl_rl_ppo_cfg:LocalPlannerPPORunnerCfg",
         "sb3_cfg_entry_point": f"{agents.__name__}.sb3_ppo_cfg:LocalPlannerSB3PPORunnerCfg",
     },
