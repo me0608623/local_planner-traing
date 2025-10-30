@@ -75,6 +75,7 @@ class LocalPlannerSceneCfgMin(InteractiveSceneCfg):
 
     lidar = RayCasterCfg(
         prim_path="/World/envs/.*/Robot/Robot/chassis_link/base_link",
+        mesh_prim_paths=["/World/ground"],
         pattern_cfg=patterns.LidarPatternCfg(
             channels=1,
             vertical_fov_range=(0.0, 0.0),
@@ -100,8 +101,8 @@ class ActionsCfg:
         right_wheel_joint_names=["joint_wheel_right"],
         wheel_radius=0.125,
         wheel_base=0.413,
-        max_linear_speed=2.0,
-        max_angular_speed=math.pi,
+        max_linear_speed=0.8,
+        max_angular_speed=0.8,
     )
 
 
@@ -153,17 +154,27 @@ class CommandsCfg:
 class RewardsCfg:
     progress_to_goal = RewTerm(
         func=mdp.progress_to_goal_reward,
-        weight=50.0,
+        weight=15.0,
         params={"command_name": "goal_command"},
     )
     reached_goal = RewTerm(
         func=mdp.reached_goal_reward,
-        weight=500.0,
-        params={"command_name": "goal_command", "threshold": 0.5},
+        weight=200.0,
+        params={"command_name": "goal_command", "threshold": 0.8},
+    )
+    near_goal_shaping = RewTerm(
+        func=mdp.near_goal_shaping,
+        weight=10.0,
+        params={"command_name": "goal_command", "radius": 1.5},
+    )
+    heading_alignment = RewTerm(
+        func=mdp.heading_alignment_reward,
+        weight=5.0,
+        params={"command_name": "goal_command"},
     )
     standstill_penalty = RewTerm(
         func=mdp.standstill_penalty,
-        weight=-0.1,
+        weight=-2.0,
     )
 
 
@@ -172,7 +183,7 @@ class TerminationsCfg:
     time_out = DoneTerm(func=mdp.time_out, time_out=True)
     goal_reached = DoneTerm(
         func=mdp.goal_reached,
-        params={"command_name": "goal_command", "threshold": 0.5},
+        params={"command_name": "goal_command", "threshold": 0.8},
     )
 
 

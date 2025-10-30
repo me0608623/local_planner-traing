@@ -12,6 +12,7 @@ from typing import TYPE_CHECKING
 
 from isaaclab.managers import SceneEntityCfg
 from isaaclab.sensors import RayCaster
+import isaaclab.utils.math as math_utils
 
 if TYPE_CHECKING:
     from isaaclab.envs import ManagerBasedRLEnv
@@ -244,6 +245,39 @@ def near_goal_shaping(
     shaping = torch.clamp((radius - distance) / radius, min=0.0, max=1.0)
     
     return shaping
+
+
+def heading_alignment_reward(
+    env: ManagerBasedRLEnv,
+    command_name: str,
+) -> torch.Tensor:
+    """【新增】朝向對齊獎勵
+
+    設計理念：鼓勵機器人朝向目標的方向前進。
+    在機器人座標系下，目標向量的 x 分量越大（朝前），對齊越好。
+
+    reward = cos(heading_error) ≈ dx / sqrt(dx^2 + dy^2)
+    範圍：[-1, 1]，越接近 1 代表越對齊。
+    """
+    # 目標在世界座標
+    command = env.command_manager.get_command(command_name)
+    goal_pos_w = command[:, :3]
+
+    # 機器人位姿
+    robot = env.scene["robot"]
+    robot_pos_w = robot.data.root_pos_w
+    robot_quat_w = robot.data.root_quat_w
+
+    # 目標相對位置（世界）→ 轉到機器人座標
+    goal_rel_w = goal_pos_w - robot_pos_w
+    goal_rel_b = math_utils.quat_apply_inverse(robot_quat_w, goal_rel_w)
+    vec_xy = goal_rel_b[:, :2]
+
+    # cos(heading_error) = dx / ||[dx, dy]||
+    denom = torch.norm(vec_xy, dim=-1).clamp(min=1e-6)
+    cos_heading = vec_xy[:, 0] / denom
+
+    return cos_heading
 
 
 def cbf_safety_reward(

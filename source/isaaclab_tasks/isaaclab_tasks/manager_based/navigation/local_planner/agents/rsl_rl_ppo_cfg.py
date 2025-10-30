@@ -32,7 +32,7 @@ class LocalPlannerPPORunnerCfg(RslRlOnPolicyRunnerCfg):
     
     # 網路架構配置
     policy = RslRlPpoActorCriticCfg(
-        init_noise_std=1.0,
+        init_noise_std=0.5,
         actor_hidden_dims=[256, 256, 128],
         critic_hidden_dims=[256, 256, 128],
         activation="elu",
@@ -42,9 +42,9 @@ class LocalPlannerPPORunnerCfg(RslRlOnPolicyRunnerCfg):
     algorithm = RslRlPpoAlgorithmCfg(
         value_loss_coef=1.0,
         use_clipped_value_loss=True,
-        clip_param=0.2,
-        entropy_coef=0.01,
-        num_learning_epochs=5,
+        clip_param=0.1,
+        entropy_coef=0.001,
+        num_learning_epochs=3,
         num_mini_batches=4,
         learning_rate=3e-4,  # 🔧 從1e-3降到3e-4（0.0003），提升穩定性
         schedule="adaptive",
