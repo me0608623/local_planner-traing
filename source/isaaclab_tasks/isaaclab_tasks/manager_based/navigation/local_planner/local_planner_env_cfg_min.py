@@ -152,31 +152,36 @@ class CommandsCfg:
 
 @configclass
 class RewardsCfg:
-    """獎勵配置（修正版 v3 - 2025-10-30）
+    """獎勵配置（修正版 v4 - 2025-10-30）
     
     版本歷史：
     
     v1（失敗 - 10000 iter）：
-    - Mean Reward 190（虛高）
-    - Success 0%、Heading 4.7、Progress 0
+    - Mean Reward 190（虛高），Success 0%
     - 問題：原地朝向策略（Reward Hacking）
     
     v2（改善 - 5000 iter）：
-    - Mean Reward -22.86（正常）
-    - Progress 0.0425（變正✅）、Heading 0.34（降低✅）
-    - Position Error 4.19m（改善 0.96m）
+    - Progress 0.0425（變正✅），Position Error 4.19m
     - 問題：Progress 太小，前進太慢
     
-    v3（當前）：
-    1. 大幅提升 progress 權重（30 → 60）
-    2. 擴大 near_goal 範圍（1.5m → 3.0m）並提升權重（10 → 20）
-    3. 減輕 time_penalty（0.02 → 0.01）
-    4. 保持其他 v2 修正（條件式 heading、反閒置機制）
+    v3（失敗 - 10000 iter）：
+    - Progress -0.0104（變負❌），Position Error 3.84m
+    - Standstill -1.16、Anti-idle -0.53（懲罰暴增）
+    - 問題：懲罰過重，Agent 被壓制不敢動
+    
+    v4（當前 - 方案 A）：
+    1. 保持 progress 權重（60）與 near_goal（20, radius 3m）
+    2. 大幅降低所有懲罰項（平衡正負獎勵）
+       - standstill: 4.0 → 1.0
+       - anti_idle: 2.0 → 0.5
+       - spin: 0.5 → 0.1
+       - time: 0.01 → 0.005
+    3. 讓正向獎勵（progress）主導，懲罰只做弱約束
     
     目標：
-    - Progress > 0.2（從 0.04 提升）
-    - Position Error < 3m（從 4.19m 下降）
-    - Success Rate > 5%（從 0% 突破）
+    - Progress 從負值回到正值（> 0.1）
+    - Position Error < 3m
+    - Agent 敢於大膽前進
     """
     progress_to_goal = RewTerm(
         func=mdp.progress_to_goal_reward,
@@ -200,21 +205,21 @@ class RewardsCfg:
     )
     standstill_penalty = RewTerm(
         func=mdp.standstill_penalty,
-        weight=4.0,  # ↑ 從 2.0（注意：函數已返回負值，weight 用正數）
+        weight=1.0,  # ↓↓ v4: 從 4.0 大幅降低（v3 懲罰過重，壓制探索）
     )
     anti_idle = RewTerm(
         func=mdp.anti_idle_penalty,
-        weight=2.0,  # 新增（函數返回負值，weight 用正數）
+        weight=0.5,  # ↓ v4: 從 2.0 降低（減輕壓制）
         params={"v_threshold": 0.05},
     )
     spin_penalty = RewTerm(
         func=mdp.spin_penalty,
-        weight=0.5,  # 新增（函數返回負值，weight 用正數）
+        weight=0.1,  # ↓ v4: 從 0.5 降低（僅保留弱約束）
         params={"w_threshold": 0.5, "v_threshold": 0.1},
     )
     time_penalty = RewTerm(
         func=mdp.time_penalty,
-        weight=0.01,  # ↓ v3: 從 0.02 降低（減輕時間壓力，讓 progress 主導）
+        weight=0.005,  # ↓ v4: 從 0.01 再降低（最小化時間壓力）
     )
 
 
