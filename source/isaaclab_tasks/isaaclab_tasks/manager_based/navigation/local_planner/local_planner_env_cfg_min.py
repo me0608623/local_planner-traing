@@ -152,25 +152,35 @@ class CommandsCfg:
 
 @configclass
 class RewardsCfg:
-    """獎勵配置（修正版 v2 - 2025-10-30）
+    """獎勵配置（修正版 v3 - 2025-10-30）
     
-    修正理由：
-    v1 訓練 10000 iter 失敗，Agent 學會「原地朝向」策略：
+    版本歷史：
+    
+    v1（失敗 - 10000 iter）：
     - Mean Reward 190（虛高）
-    - Success Rate 0%
-    - Heading Alignment 4.7（持續拿分）
-    - Progress 0（不前進）
+    - Success 0%、Heading 4.7、Progress 0
+    - 問題：原地朝向策略（Reward Hacking）
     
-    v2 修正策略：
-    1. 大幅降低 heading 權重（5.0 → 1.0）並改為條件式
-    2. 提升 progress 權重（15.0 → 30.0）
-    3. 強化移動誘因（anti_idle、time_penalty）
-    4. 抑制原地旋轉（spin_penalty）
-    5. 修復 standstill 符號問題
+    v2（改善 - 5000 iter）：
+    - Mean Reward -22.86（正常）
+    - Progress 0.0425（變正✅）、Heading 0.34（降低✅）
+    - Position Error 4.19m（改善 0.96m）
+    - 問題：Progress 太小，前進太慢
+    
+    v3（當前）：
+    1. 大幅提升 progress 權重（30 → 60）
+    2. 擴大 near_goal 範圍（1.5m → 3.0m）並提升權重（10 → 20）
+    3. 減輕 time_penalty（0.02 → 0.01）
+    4. 保持其他 v2 修正（條件式 heading、反閒置機制）
+    
+    目標：
+    - Progress > 0.2（從 0.04 提升）
+    - Position Error < 3m（從 4.19m 下降）
+    - Success Rate > 5%（從 0% 突破）
     """
     progress_to_goal = RewTerm(
         func=mdp.progress_to_goal_reward,
-        weight=30.0,  # ↑ 從 15.0（主要驅動力）
+        weight=60.0,  # ↑↑ v3: 從 30.0 提升（強力推動接近目標）
         params={"command_name": "goal_command"},
     )
     reached_goal = RewTerm(
@@ -180,8 +190,8 @@ class RewardsCfg:
     )
     near_goal_shaping = RewTerm(
         func=mdp.near_goal_shaping,
-        weight=10.0,  # 保持
-        params={"command_name": "goal_command", "radius": 1.5},
+        weight=20.0,  # ↑ v3: 從 10.0 提升（擴大影響力）
+        params={"command_name": "goal_command", "radius": 3.0},  # ↑ v3: 從 1.5m 擴大（更早生效）
     )
     heading_alignment = RewTerm(
         func=mdp.heading_alignment_reward,
@@ -204,7 +214,7 @@ class RewardsCfg:
     )
     time_penalty = RewTerm(
         func=mdp.time_penalty,
-        weight=0.02,  # 新增（每步 -0.02，30秒累積 -6）
+        weight=0.01,  # ↓ v3: 從 0.02 降低（減輕時間壓力，讓 progress 主導）
     )
 
 

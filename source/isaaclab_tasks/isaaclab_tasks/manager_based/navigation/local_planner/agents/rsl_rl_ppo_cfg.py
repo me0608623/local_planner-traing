@@ -21,7 +21,7 @@ class LocalPlannerPPORunnerCfg(RslRlOnPolicyRunnerCfg):
     seed: int = 42
     device: str = "cuda:0"
     num_steps_per_env: int = 24
-    max_iterations: int = 3000
+    max_iterations: int = 10000  # v3: 延長訓練（從 3000 提升）
     save_interval: int = 100
     experiment_name: str = "local_planner_carter"
     run_name: str = ""  # 運行名稱，會附加在日誌目錄後
