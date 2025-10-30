@@ -24,8 +24,12 @@ class LocalPlannerPPORunnerCfg(RslRlOnPolicyRunnerCfg):
     max_iterations: int = 10000  # v3: 延長訓練（從 3000 提升）
     save_interval: int = 100
     experiment_name: str = "local_planner_carter"
-    run_name: str = ""  # 運行名稱，會附加在日誌目錄後
+    run_name: str = "v3_progress60_neargol20_time001"  # v3 訓練標記
     empirical_normalization: bool = False
+    
+    # Logger 配置 - 使用 WandB（v3 新增）
+    logger: str = "wandb"  # 從 tensorboard 改為 wandb
+    wandb_project: str = "nova-carter-navigation"  # WandB 專案名稱
     
     # 觀測組配置 - 設為 None 讓 RSL-RL 自動推斷
     obs_groups: dict | None = None
