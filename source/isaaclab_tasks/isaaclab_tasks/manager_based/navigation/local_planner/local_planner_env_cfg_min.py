@@ -152,29 +152,59 @@ class CommandsCfg:
 
 @configclass
 class RewardsCfg:
+    """獎勵配置（修正版 v2 - 2025-10-30）
+    
+    修正理由：
+    v1 訓練 10000 iter 失敗，Agent 學會「原地朝向」策略：
+    - Mean Reward 190（虛高）
+    - Success Rate 0%
+    - Heading Alignment 4.7（持續拿分）
+    - Progress 0（不前進）
+    
+    v2 修正策略：
+    1. 大幅降低 heading 權重（5.0 → 1.0）並改為條件式
+    2. 提升 progress 權重（15.0 → 30.0）
+    3. 強化移動誘因（anti_idle、time_penalty）
+    4. 抑制原地旋轉（spin_penalty）
+    5. 修復 standstill 符號問題
+    """
     progress_to_goal = RewTerm(
         func=mdp.progress_to_goal_reward,
-        weight=15.0,
+        weight=30.0,  # ↑ 從 15.0（主要驅動力）
         params={"command_name": "goal_command"},
     )
     reached_goal = RewTerm(
         func=mdp.reached_goal_reward,
-        weight=200.0,
+        weight=200.0,  # 保持
         params={"command_name": "goal_command", "threshold": 0.8},
     )
     near_goal_shaping = RewTerm(
         func=mdp.near_goal_shaping,
-        weight=10.0,
+        weight=10.0,  # 保持
         params={"command_name": "goal_command", "radius": 1.5},
     )
     heading_alignment = RewTerm(
         func=mdp.heading_alignment_reward,
-        weight=5.0,
-        params={"command_name": "goal_command"},
+        weight=1.0,  # ↓ 從 5.0（避免壓倒 progress，且改為條件式）
+        params={"command_name": "goal_command", "v_min": 0.1},
     )
     standstill_penalty = RewTerm(
         func=mdp.standstill_penalty,
-        weight=-2.0,
+        weight=4.0,  # ↑ 從 2.0（注意：函數已返回負值，weight 用正數）
+    )
+    anti_idle = RewTerm(
+        func=mdp.anti_idle_penalty,
+        weight=2.0,  # 新增（函數返回負值，weight 用正數）
+        params={"v_threshold": 0.05},
+    )
+    spin_penalty = RewTerm(
+        func=mdp.spin_penalty,
+        weight=0.5,  # 新增（函數返回負值，weight 用正數）
+        params={"w_threshold": 0.5, "v_threshold": 0.1},
+    )
+    time_penalty = RewTerm(
+        func=mdp.time_penalty,
+        weight=0.02,  # 新增（每步 -0.02，30秒累積 -6）
     )
 
 
