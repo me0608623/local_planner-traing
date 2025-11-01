@@ -1,0 +1,134 @@
+╔════════════════════════════════════════════════════════════╗
+║                                                            ║
+║           ✅ 腳本整理完成！                                ║
+║                                                            ║
+╚════════════════════════════════════════════════════════════╝
+
+📂 新的目錄結構
+
+根目錄/
+├── 🚀 train.sh  ← 📍 統一啟動入口（從這裡開始！）
+├── 🔧 isaaclab.sh  ← 核心啟動腳本（保留）
+│
+└── scripts/
+    ├── 📘 README.md  ← 完整使用說明
+    │
+    ├── 📁 training/ (4 個腳本)
+    │   ├── start_v4_training.sh         ← 無頭模式（最快）
+    │   ├── start_v4_training_gui.sh     ← GUI 模式
+    │   ├── 啟動24環境訓練.sh            ← 24 環境可視化
+    │   └── train_debug_correct.sh       ← 調試訓練
+    │
+    ├── 📁 monitoring/ (1 個腳本)
+    │   └── monitor_training.sh          ← 即時監控
+    │
+    └── 📁 setup/ (3 個腳本)
+        ├── setup_env_fix_pinocchio.sh   ← 環境修復
+        ├── remove_pinocchio.sh          ← 移除 Pinocchio
+        └── verify_local_usd.sh          ← 驗證資源
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🎯 快速開始
+
+最簡單的方式：
+  cd /home/aa/IsaacLab
+  ./train.sh
+
+會出現選單：
+  1️⃣  無頭模式（最快，推薦）
+  2️⃣  GUI 模式（可視化）
+  3️⃣  監控現有訓練
+  0️⃣  退出
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📊 整理前 vs 整理後
+
+整理前：
+  ❌ 7 個腳本散落在根目錄
+  ❌ 2 個腳本在 scripts/ 根目錄
+  ❌ 沒有統一入口
+  ❌ 沒有使用說明
+
+整理後：
+  ✅ 3 個分類資料夾
+  ✅ 統一啟動入口 train.sh
+  ✅ 完整 README.md 說明
+  ✅ 根目錄保持簡潔
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+💡 常用指令
+
+🚀 啟動訓練：
+  ./train.sh                                    # 選單啟動
+  ./scripts/training/start_v4_training.sh       # 無頭模式（直接）
+  ./scripts/training/啟動24環境訓練.sh          # GUI 模式（直接）
+
+📊 監控訓練：
+  ./scripts/monitoring/monitor_training.sh      # 單次查看
+  watch -n 5 ./scripts/monitoring/monitor_training.sh  # 持續監控
+
+🛠️ 環境修復：
+  ./scripts/setup/setup_env_fix_pinocchio.sh   # 修復 Pinocchio
+
+🔍 查看說明：
+  cat scripts/README.md                         # 完整說明
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+✨ 主要改善
+
+1️⃣ 統一入口
+   - train.sh 提供選單式啟動
+   - 不用記憶複雜路徑
+
+2️⃣ 清晰分類
+   - training/ - 訓練相關
+   - monitoring/ - 監控相關
+   - setup/ - 環境設置
+
+3️⃣ 完整文檔
+   - scripts/README.md 詳細說明
+   - 每個腳本的用途和參數
+
+4️⃣ 根目錄簡潔
+   - 只保留 2 個腳本
+   - train.sh（統一入口）
+   - isaaclab.sh（核心腳本）
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🎓 使用建議
+
+首次訓練：
+  1. ./train.sh
+  2. 選擇 2（GUI 模式）
+  3. 觀察學習行為
+  4. 確認正常後改用無頭模式
+
+正式訓練：
+  1. ./train.sh
+  2. 選擇 1（無頭模式）
+  3. 另開終端監控
+  4. 用 WandB 查看曲線
+
+監控訓練：
+  1. ./scripts/monitoring/monitor_training.sh
+  2. 或 watch -n 5 ./scripts/monitoring/monitor_training.sh
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📞 更多幫助
+
+查看腳本說明：
+  cat /home/aa/IsaacLab/scripts/README.md
+
+查看目錄結構：
+  cd /home/aa/IsaacLab/scripts && tree -L 2
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+✅ 整理完成！現在執行 ./train.sh 開始訓練吧！
+
